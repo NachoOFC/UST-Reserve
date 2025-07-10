@@ -1,75 +1,39 @@
-# Nuxt Minimal Starter
+# AyudaST - Despliegue en Netlify
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+## Pasos para desplegar en Netlify
 
-## Setup
+1. **Haz push de tu código a GitHub, GitLab o Bitbucket.**
 
-Make sure to install dependencies:
+2. **Entra a [Netlify](https://app.netlify.com/) y crea un nuevo sitio desde Git.**
 
-```bash
-# npm
-npm install
+3. **Configura los siguientes parámetros:**
 
-# pnpm
-pnpm install
+- **Build command:**
 
-# yarn
-yarn install
-
-# bun
-bun install
 ```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
 ```
 
-Locally preview production build:
+- **Publish directory:**
 
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+```
+.\.output\public
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+> Si usas Nuxt 3 con preset `netlify`, la carpeta de salida es `.output/public`.
+
+4. **(Opcional) Variables de entorno:**
+
+Si necesitas variables de entorno, agrégalas en la sección "Environment variables" de Netlify.
+
+5. **Haz deploy!**
+
+---
+
+## Notas
+- Si tienes errores de estilos, asegúrate de que el build se haya hecho después de cualquier cambio en `tailwind.config.mjs`.
+- Si usas rutas personalizadas, revisa la documentación de Nuxt 3 + Netlify para redirects.
+
+---
+
+¡Listo para desplegar en Netlify 🚀!

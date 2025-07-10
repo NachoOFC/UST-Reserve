@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-staccent font-sans">
+  <div class="min-h-screen bg-gradient-to-br from-ust-50 to-ust-100 font-sans">
     <!-- Header -->
-    <header class="bg-stgreen text-white shadow-sm">
+    <header class="gradient-ust text-white shadow-lg">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
@@ -15,7 +15,7 @@
                 v-for="navItem in navigationItems" 
                 :key="navItem.id"
                 :to="navItem.link" 
-                class="text-white hover:text-staccent px-3 py-2 rounded-md text-sm font-medium"
+                class="text-white hover:text-ust-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                 @click="handleNavigation(navItem.id)"
               >
                 {{ navItem.text }}
@@ -25,72 +25,76 @@
         </div>
       </div>
     </header>
+
     <!-- Main Content -->
     <main class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-12">
-        <h2 class="text-4xl font-extrabold text-stgreen sm:text-5xl">{{ pageTitle }}</h2>
-        <p class="mt-4 text-xl text-stgreen-dark">{{ pageSubtitle }}</p>
+        <h2 class="text-4xl font-bold text-ust-800 sm:text-5xl mb-4">{{ pageTitle }}</h2>
+        <p class="text-xl text-ust-700">{{ pageSubtitle }}</p>
       </div>
+
       <!-- Reservation Form -->
-      <div class="bg-white rounded-2xl shadow-lg p-8">
-        <form @submit.prevent="handleSubmit" class="space-y-6">
+      <div class="card-ust">
+        <form @submit.prevent="handleSubmit" class="space-y-8">
           <!-- Personal Information -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="nombre" class="block text-sm font-medium text-stgreen mb-2">{{ formLabels.nombre }}</label>
+              <label for="nombre" class="block text-sm font-medium text-ust-700 mb-2">{{ formLabels.nombre }}</label>
               <input 
                 type="text" 
                 id="nombre" 
                 v-model="formData.nombre"
                 required
-                class="w-full px-4 py-3 border border-stgreen-light rounded-lg focus:ring-2 focus:ring-stgreen focus:border-transparent"
+                class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
                 :placeholder="formPlaceholders.nombre"
               >
             </div>
             <div>
-              <label for="email" class="block text-sm font-medium text-stgreen mb-2">{{ formLabels.email }}</label>
+              <label for="email" class="block text-sm font-medium text-ust-700 mb-2">{{ formLabels.email }}</label>
               <input 
                 type="email" 
                 id="email" 
                 v-model="formData.email"
                 required
-                class="w-full px-4 py-3 border border-stgreen-light rounded-lg focus:ring-2 focus:ring-stgreen focus:border-transparent"
+                class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
                 :placeholder="formPlaceholders.email"
               >
             </div>
           </div>
+
           <!-- Date and Time -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="fecha" class="block text-sm font-medium text-stgreen mb-2">{{ formLabels.fecha }}</label>
+              <label for="fecha" class="block text-sm font-medium text-ust-700 mb-2">{{ formLabels.fecha }}</label>
               <input 
                 type="date" 
                 id="fecha" 
                 v-model="formData.fecha"
                 required
-                class="w-full px-4 py-3 border border-stgreen-light rounded-lg focus:ring-2 focus:ring-stgreen focus:border-transparent"
+                class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
               >
             </div>
             <div>
-              <label for="hora" class="block text-sm font-medium text-stgreen mb-2">{{ formLabels.hora }}</label>
+              <label for="hora" class="block text-sm font-medium text-ust-700 mb-2">{{ formLabels.hora }}</label>
               <input 
                 type="time" 
                 id="hora" 
                 v-model="formData.hora"
                 required
-                class="w-full px-4 py-3 border border-stgreen-light rounded-lg focus:ring-2 focus:ring-stgreen focus:border-transparent"
+                class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
               >
             </div>
           </div>
+
           <!-- Duration and Room Type -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="duracion" class="block text-sm font-medium text-stgreen mb-2">{{ formLabels.duracion }}</label>
+              <label for="duracion" class="block text-sm font-medium text-ust-700 mb-2">{{ formLabels.duracion }}</label>
               <select 
                 id="duracion" 
                 v-model="formData.duracion"
                 required
-                class="w-full px-4 py-3 border border-stgreen-light rounded-lg focus:ring-2 focus:ring-stgreen focus:border-transparent"
+                class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
               >
                 <option value="">{{ formPlaceholders.duracion }}</option>
                 <option 
@@ -103,12 +107,12 @@
               </select>
             </div>
             <div>
-              <label for="tipoSala" class="block text-sm font-medium text-stgreen mb-2">{{ formLabels.tipoSala }}</label>
+              <label for="tipoSala" class="block text-sm font-medium text-ust-700 mb-2">{{ formLabels.tipoSala }}</label>
               <select 
                 id="tipoSala" 
                 v-model="formData.tipoSala"
                 required
-                class="w-full px-4 py-3 border border-stgreen-light rounded-lg focus:ring-2 focus:ring-stgreen focus:border-transparent"
+                class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
               >
                 <option value="">{{ formPlaceholders.tipoSala }}</option>
                 <option 
@@ -121,69 +125,74 @@
               </select>
             </div>
           </div>
+
           <!-- Equipment -->
           <div>
-            <label class="block text-sm font-medium text-stgreen mb-2">{{ formLabels.equipos }}</label>
+            <label class="block text-sm font-medium text-ust-700 mb-4">{{ formLabels.equipos }}</label>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
               <label 
                 v-for="equipment in equipmentOptions" 
                 :key="equipment.value"
-                class="flex items-center"
+                class="flex items-center p-3 border border-ust-200 rounded-lg hover:bg-ust-50 transition-colors duration-200"
               >
                 <input 
                   type="checkbox" 
                   v-model="formData.equipos"
                   :value="equipment.value"
-                  class="rounded border-stgreen-light text-stgreen focus:ring-stgreen"
+                  class="rounded border-ust-300 text-ust-600 focus:ring-ust-500"
                 >
-                <span class="ml-2 text-sm text-stgreen">{{ equipment.label }}</span>
+                <span class="ml-3 text-sm text-ust-700">{{ equipment.label }}</span>
               </label>
             </div>
           </div>
+
           <!-- Comments -->
           <div>
-            <label for="comentarios" class="block text-sm font-medium text-stgreen mb-2">{{ formLabels.comentarios }}</label>
+            <label for="comentarios" class="block text-sm font-medium text-ust-700 mb-2">{{ formLabels.comentarios }}</label>
             <textarea 
               id="comentarios" 
               v-model="formData.comentarios"
               rows="4"
-              class="w-full px-4 py-3 border border-stgreen-light rounded-lg focus:ring-2 focus:ring-stgreen focus:border-transparent"
+              class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
               :placeholder="formPlaceholders.comentarios"
             ></textarea>
           </div>
+
           <!-- Submit Button -->
           <div class="flex justify-center pt-6">
             <button 
               type="submit" 
-              class="bg-stgreen hover:bg-stgreen-light text-white font-bold py-3 px-8 rounded-lg transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              class="btn-ust text-lg px-12 py-4 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
             >
               {{ submitButtonText }}
             </button>
           </div>
         </form>
       </div>
+
       <!-- Information Cards -->
       <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div 
           v-for="infoCard in infoCards" 
           :key="infoCard.id"
-          class="bg-staccent rounded-lg shadow-md p-6"
+          class="card-ust text-center hover:shadow-xl transition-shadow duration-300"
         >
-          <div class="flex items-center justify-center w-12 h-12 rounded-full mb-4" :class="infoCard.bgColor">
-            <svg class="w-6 h-6" :class="infoCard.iconColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="flex items-center justify-center w-16 h-16 rounded-full mb-4 mx-auto" :class="infoCard.bgColor">
+            <svg class="w-8 h-8" :class="infoCard.iconColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="infoCard.iconPath"></path>
             </svg>
           </div>
-          <h3 class="text-lg font-semibold text-stgreen mb-2">{{ infoCard.title }}</h3>
-          <p class="text-stgreen-dark text-sm">{{ infoCard.description }}</p>
+          <h3 class="text-lg font-semibold text-ust-800 mb-3">{{ infoCard.title }}</h3>
+          <p class="text-ust-600 text-sm">{{ infoCard.description }}</p>
         </div>
       </div>
     </main>
+
     <!-- Footer -->
-    <footer class="bg-stgreen-dark mt-20">
+    <footer class="bg-ust-800 mt-20">
       <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div class="text-center">
-          <p class="text-staccent">&copy; {{ currentYear }} {{ appTitle }}. Todos los derechos reservados.</p>
+          <p class="text-ust-100">&copy; {{ currentYear }} {{ appTitle }}. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
@@ -265,24 +274,24 @@ export default {
           id: 'cancellation',
           title: 'Política de Cancelación',
           description: 'Puedes cancelar tu reserva hasta 2 horas antes del inicio sin penalización.',
-          bgColor: 'bg-blue-100',
-          iconColor: 'text-blue-600',
+          bgColor: 'bg-ust-100',
+          iconColor: 'text-ust-600',
           iconPath: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
         },
         {
           id: 'confirmation',
           title: 'Confirmación Inmediata',
           description: 'Recibirás una confirmación por email inmediatamente después de la reserva.',
-          bgColor: 'bg-green-100',
-          iconColor: 'text-green-600',
+          bgColor: 'bg-ust-accent-100',
+          iconColor: 'text-ust-accent-600',
           iconPath: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
         },
         {
           id: 'support',
           title: 'Soporte 24/7',
           description: 'Nuestro equipo está disponible para ayudarte en cualquier momento.',
-          bgColor: 'bg-purple-100',
-          iconColor: 'text-purple-600',
+          bgColor: 'bg-ust-100',
+          iconColor: 'text-ust-600',
           iconPath: 'M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
         }
       ]
@@ -375,6 +384,5 @@ export default {
 }
 </script>
 
-<!-- Elimino estilos scoped para que predomine Tailwind -->
 <style scoped>
 </style>
