@@ -36,3 +36,29 @@ export async function createStudyRoom(name: string, number: number) {
     throw new Error('Failed to create study room in database');
   }
 }
+
+// Actualizar una sala
+export async function updateStudyRoom(id: number, name: string, number: number) {
+  try {
+    const [room] = await sql`
+      UPDATE study_rooms
+      SET name = ${name}, number = ${number}
+      WHERE id = ${id}
+      RETURNING *`;
+    return room;
+  } catch (error) {
+    console.error('Database error in updateStudyRoom:', error);
+    throw new Error('Failed to update study room in database');
+  }
+}
+
+// Eliminar una sala
+export async function deleteStudyRoom(id: number) {
+  try {
+    await sql`DELETE FROM study_rooms WHERE id = ${id}`;
+    return { success: true };
+  } catch (error) {
+    console.error('Database error in deleteStudyRoom:', error);
+    throw new Error('Failed to delete study room from database');
+  }
+}

@@ -19,7 +19,7 @@
       </div>
 
       <!-- Cards principales -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         <!-- Card Reservar -->
         <div class="card-ust flex flex-col items-center border-t-4 border-ust-500 hover:shadow-xl transition-shadow duration-300">
           <div class="mb-6 text-ust-500">
@@ -45,6 +45,20 @@
           <p class="text-gray-600 mb-6 text-center">Encuentra salas disponibles en tiempo real y consulta su ubicación exacta en el campus.</p>
           <NuxtLink to="/gps" class="btn-ust-outline text-lg px-8 py-3">
             Buscar Ahora
+          </NuxtLink>
+        </div>
+
+        <!-- Card CRUD -->
+        <div class="card-ust flex flex-col items-center border-t-4 border-blue-500 hover:shadow-xl transition-shadow duration-300">
+          <div class="mb-6 text-blue-500">
+            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-blue-800 mb-3">CRUD de Salas</h3>
+          <p class="text-gray-600 mb-6 text-center">Administra, crea, edita y elimina salas de estudio fácilmente.</p>
+          <NuxtLink to="/crud" class="btn-ust-outline text-lg px-8 py-3">
+            Ir al CRUD
           </NuxtLink>
         </div>
       </div>
@@ -98,7 +112,17 @@
 
 <script>
 export default {
-  name: 'IndexPage'
+  name: 'IndexPage',
+  mounted() {
+    fetch('/api/study-rooms')
+      .then(res => res.json())
+      .then(data => {
+        console.log('Salas desde el endpoint:', data)
+      })
+      .catch(err => {
+        console.error('Error al obtener las salas:', err)
+      })
+  }
 }
 </script>
 

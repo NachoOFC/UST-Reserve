@@ -2,7 +2,7 @@
 import 'dotenv/config'; // Fuerza la carga del .env, compatible con TS
 import { neon } from '@netlify/neon';
 
-console.log('process.env.DATABASE_URL:', process.env.DATABASE_URL);
+console.log('coneccion aaaaaaaa process.env.DATABASE_URL:', process.env.DATABASE_URL);
 
 // Get runtime config (solo funcionará en contexto Nuxt, pero para debug mantenemos ambos)
 let databaseUrl = process.env.DATABASE_URL;
