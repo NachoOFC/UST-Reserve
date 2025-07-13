@@ -440,7 +440,6 @@ export default {
   
   methods: {
     handleNavigation(navId) {
-      console.log('Navegación a:', navId)
       // Aquí puedes agregar lógica específica para cada navegación
       switch(navId) {
         case 'home':
@@ -453,7 +452,6 @@ export default {
     },
     
     buscarSalas() {
-      console.log('Buscando salas con filtros:', this.searchFilters)
       // Aquí implementarías la lógica de búsqueda real
       this.showSearchResults()
     },
@@ -462,7 +460,6 @@ export default {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            console.log('Ubicación obtenida:', position.coords)
             this.showLocationSuccess()
           },
           (error) => {
@@ -476,18 +473,15 @@ export default {
     },
     
     verDetalles(sala) {
-      console.log('Ver detalles de:', sala)
       this.showRoomDetails(sala)
     },
     
     verEnMapa(sala) {
-      console.log('Ver en mapa:', sala)
       this.showRoomInMap(sala)
     },
     
     showSearchResults() {
       // Aquí puedes agregar lógica para mostrar resultados de búsqueda
-      console.log('Mostrando resultados de búsqueda')
     },
     
     showLocationSuccess() {
@@ -512,7 +506,6 @@ export default {
     
     // Método para inicializar la página
     initializePage() {
-      console.log('Página GPS inicializada')
       // Aquí puedes agregar lógica de inicialización
     }
   },
