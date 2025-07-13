@@ -300,7 +300,6 @@ export default {
   
   methods: {
     handleNavigation(navId) {
-      console.log('Navegación a:', navId)
       // Aquí puedes agregar lógica específica para cada navegación
       switch(navId) {
         case 'home':
@@ -319,7 +318,6 @@ export default {
       }
       
       // Aquí puedes agregar la lógica para enviar los datos
-      console.log('Datos de reserva:', this.formData)
       this.showSuccessMessage()
       this.resetForm()
     },
@@ -371,7 +369,6 @@ export default {
     
     // Método para inicializar la página
     initializePage() {
-      console.log('Página de reserva inicializada')
       // Establecer fecha mínima como hoy
       const today = new Date().toISOString().split('T')[0]
       this.formData.fecha = today

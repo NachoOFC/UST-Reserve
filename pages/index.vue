@@ -117,7 +117,7 @@ export default {
     fetch('/api/study-rooms')
       .then(res => res.json())
       .then(data => {
-        console.log('Salas desde el endpoint:', data)
+        // Data loaded successfully
       })
       .catch(err => {
         console.error('Error al obtener las salas:', err)
