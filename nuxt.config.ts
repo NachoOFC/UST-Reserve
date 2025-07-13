@@ -1,6 +1,16 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: ["@nuxtjs/tailwindcss"],
+  
+  app: {
+    head: {
+      title: 'TomasinoSpace',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' }
+      ]
+    }
+  },
    
   nitro: {
     preset: "netlify", // o  'netlify_edge'  si quieres Edge Functions
@@ -9,6 +19,12 @@ export default defineNuxtConfig({
   css: [
     "@/assets/css/tailwind.css",
   ],
+  
+  // Experimental features to fix initialization issues
+  experimental: {
+    inlineSSRStyles: false,
+    renderJsonPayloads: false
+  },
   
   // Runtime config for environment variables
   runtimeConfig: {

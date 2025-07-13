@@ -3,7 +3,7 @@
     <!-- Header con gradiente UST más alto -->
     <div class="gradient-ust text-white py-20">
       <div class="max-w-4xl mx-auto text-center">
-        <h1 class="text-5xl font-bold mb-4">StudyRoom</h1>
+        <h1 class="text-5xl font-bold mb-4">TomasinoSpace</h1>
         <p class="text-xl opacity-90">Sistema de gestión de salas de estudio - Universidad Santo Tomás</p>
       </div>
     </div>
