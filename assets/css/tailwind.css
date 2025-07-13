@@ -32,4 +32,7 @@
   }
 } 
 
+/* Forzar a Tailwind a incluir la clase personalizada */
+.bg-ust-institucional, .text-ust-institucional, .border-ust-institucional {} 
+
 
