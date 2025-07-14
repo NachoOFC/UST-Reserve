@@ -1,323 +1,503 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-ust-50 to-ust-100 font-sans">
-    <!-- Header -->
-    <header class="gradient-ust text-white shadow-lg">
+  <div class="min-h-screen bg-gray-50">
+    <!-- Header consistente con el index -->
+    <header class="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-40">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <div class="flex items-center">
-            <NuxtLink to="/" class="flex-shrink-0">
-              <h1 class="text-2xl font-bold">{{ appTitle }}</h1>
+        <div class="flex items-center justify-between h-20">
+          <!-- Logo y navegación -->
+          <div class="flex items-center space-x-8">
+            <div class="flex items-center space-x-4">
+              <NuxtLink to="/" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
             </NuxtLink>
-          </div>
-          <nav class="hidden md:block">
-            <div class="ml-10 flex items-baseline space-x-4">
-              <NuxtLink 
-                v-for="navItem in navigationItems" 
-                :key="navItem.id"
-                :to="navItem.link" 
-                class="text-white hover:text-ust-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                @click="handleNavigation(navItem.id)"
-              >
-                {{ navItem.text }}
-              </NuxtLink>
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <span class="text-white font-bold text-lg">UST</span>
+                </div>
+                <div>
+                  <h1 class="text-xl font-bold text-gray-900">TominoSpace</h1>
+                  <p class="text-sm text-gray-600">Sistema de Reservas</p>
+                </div>
+              </div>
             </div>
-          </nav>
+          </div>
+          
+          <!-- Acciones del usuario -->
+          <div class="flex items-center space-x-4">
+            <button class="p-2 rounded-lg hover:bg-gray-100 transition-colors relative">
+              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM10.5 3.75a6 6 0 00-6 6v3.75l-2.25 2.25V19.5h12.5V15.75L16.5 13.5V9.75a6 6 0 00-6-6z"/>
+              </svg>
+              <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+            </button>
+            <div class="relative">
+              <button class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center">
+                  <span class="text-white font-semibold text-sm">L</span>
+                </div>
+                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-12">
-        <h2 class="text-4xl font-bold text-ust-800 sm:text-5xl mb-4">{{ pageTitle }}</h2>
-        <p class="text-xl text-ust-700">{{ pageSubtitle }}</p>
+    <!-- Contenido principal -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Hero section para reservas -->
+      <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-8 text-white mb-8">
+        <div class="max-w-3xl">
+          <h1 class="text-3xl font-bold mb-4">Reservar Sala de Estudio</h1>
+          <p class="text-emerald-100 text-lg">
+            Selecciona una sala, elige fecha y hora, y confirma tu reserva en pocos pasos
+          </p>
+        </div>
       </div>
 
-      <!-- Listado de salas -->
-      <div v-if="!selectedRoom">
-        <div v-if="rooms.length" class="space-y-6">
-          <div v-for="room in rooms" :key="room.id" class="bg-white rounded-xl shadow p-6 flex flex-col md:flex-row md:items-center md:justify-between border border-ust-institucional">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Formulario de reserva -->
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Nueva Reserva</h2>
+            
+            <form @submit.prevent="submitReservation" class="space-y-6">
+              <!-- Selección de sala -->
             <div>
-              <h3 class="text-xl font-bold text-ust-institucional mb-1">{{ room.name }}</h3>
-              <p class="text-gray-600">Sala N° {{ room.number }} | Capacidad: {{ room.capacity }} personas</p>
+                <label class="block text-sm font-medium text-gray-700 mb-3">Seleccionar Sala</label>
+                
+                <!-- Estado de carga -->
+                <div v-if="isLoadingRooms" class="text-center py-8">
+                  <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-emerald-600">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Cargando salas disponibles...
+                  </div>
+                </div>
+
+                <!-- Estado de error -->
+                <div v-else-if="roomsError" class="text-center py-8">
+                  <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <svg class="w-8 h-8 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <p class="text-red-600 font-medium">{{ roomsError }}</p>
+                    <button 
+                      @click="fetchRooms"
+                      class="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                    >
+                      Reintentar
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Lista de salas -->
+                <div v-else-if="availableRooms.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div 
+                    v-for="room in availableRooms" 
+                    :key="room.id"
+                    @click="selectedRoom = room"
+                    :class="[
+                      'p-4 border-2 rounded-xl cursor-pointer transition-all duration-200',
+                      selectedRoom?.id === room.id 
+                        ? 'border-emerald-500 bg-emerald-50' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    ]"
+                  >
+                    <div class="flex items-center justify-between mb-2">
+                      <h3 class="font-semibold text-gray-900">{{ room.name }}</h3>
+                      <span class="text-sm text-emerald-600 font-medium">Disponible</span>
             </div>
-            <button @click="selectRoom(room)" class="bg-[#3a9a3a] hover:bg-[#2d7a2d] text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 mt-4 md:mt-0">Reservar</button>
+                    <p class="text-sm text-gray-600 mb-2">{{ room.location }}</p>
+                    <div class="flex items-center text-sm text-gray-500">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                      </svg>
+                      <span>Capacidad: {{ room.capacity }} personas</span>
           </div>
         </div>
-        <div v-else class="text-center text-gray-500 mt-8">No hay salas registradas.</div>
       </div>
 
-      <!-- Formulario de reserva -->
-      <div v-else class="card-ust mt-8">
-        <form @submit.prevent="handleSubmit" class="space-y-8">
-          <div class="mb-4">
-            <span class="block text-lg font-bold text-ust-institucional">Reservando: {{ selectedRoom.name }} (Sala N° {{ selectedRoom.number }})</span>
-            <button type="button" @click="selectedRoom = null" class="ml-4 text-sm text-ust-institucional underline">Cambiar sala</button>
+                <!-- Sin salas disponibles -->
+                <div v-else class="text-center py-8">
+                  <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                  </svg>
+                  <p class="text-gray-500 mb-2">No hay salas disponibles</p>
+                  <p class="text-sm text-gray-400">Intenta más tarde o contacta al administrador</p>
+                </div>
           </div>
-          <!-- Personal Information -->
+
+              <!-- Información personal -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="nombre" class="block text-sm font-medium text-ust-700 mb-2">{{ formLabels.nombre }}</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Nombre completo</label>
               <input 
+                    v-model="formData.name"
                 type="text" 
-                id="nombre" 
-                v-model="formData.nombre"
                 required
-                class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
-                :placeholder="formPlaceholders.nombre"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                    placeholder="Tu nombre completo"
               >
             </div>
             <div>
-              <label for="email" class="block text-sm font-medium text-ust-700 mb-2">{{ formLabels.email }}</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
               <input 
+                    v-model="formData.email"
                 type="email" 
-                id="email" 
-                v-model="formData.email"
                 required
-                class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
-                :placeholder="formPlaceholders.email"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                    placeholder="tu.email@ust.cl"
               >
             </div>
           </div>
 
-          <!-- Date and Time -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Fecha y hora -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label for="fecha" class="block text-sm font-medium text-ust-700 mb-2">{{ formLabels.fecha }}</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
               <input 
+                    v-model="formData.date"
                 type="date" 
-                id="fecha" 
-                v-model="formData.fecha"
+                    required
+                    :min="today"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                  >
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Hora de inicio</label>
+                  <input 
+                    v-model="formData.time"
+                    type="time" 
                 required
-                :min="minDate"
-                class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
               >
             </div>
             <div>
-              <label for="hora" class="block text-sm font-medium text-ust-700 mb-2">{{ formLabels.hora }}</label>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Duración</label>
               <select
-                id="hora"
-                v-model="formData.hora"
-                required
-                class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
-              >
-                <option value="">Selecciona hora de inicio</option>
-                <option v-for="h in validHours" :key="h" :value="h">{{ h }}</option>
+                    v-model="formData.duration"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                  >
+                    <option value="1">1 hora</option>
+                    <option value="2">2 horas</option>
+                    <option value="3">3 horas</option>
+                    <option value="4">4 horas</option>
               </select>
             </div>
           </div>
 
-          <!-- Duration -->
+              <!-- Notas adicionales -->
           <div>
-            <label for="duracion" class="block text-sm font-medium text-ust-700 mb-2">{{ formLabels.duracion }}</label>
-            <select 
-              id="duracion" 
-              v-model="formData.duracion"
-              required
-              class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
-            >
-              <option value="">{{ formPlaceholders.duracion }}</option>
-              <option 
-                v-for="duration in durationOptions" 
-                :key="duration.value" 
-                :value="duration.value"
-              >
-                {{ duration.label }}
-              </option>
-            </select>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Notas adicionales (opcional)</label>
+                <textarea 
+                  v-model="formData.notes"
+                  rows="3"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                  placeholder="Especificaciones especiales, equipamiento adicional, etc."
+                ></textarea>
           </div>
 
-          <!-- Submit Button -->
-          <div class="flex justify-center pt-6">
+              <!-- Botones de acción -->
+              <div class="flex space-x-4 pt-4">
+                <NuxtLink 
+                  to="/"
+                  class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Cancelar
+                </NuxtLink>
             <button 
               type="submit" 
-              class="bg-[#3a9a3a] hover:bg-[#2d7a2d] text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 text-lg mt-4"
+                  :disabled="!selectedRoom || !formData.name || !formData.email"
+                  class="px-6 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {{ submitButtonText }}
+                  Confirmar Reserva
             </button>
           </div>
         </form>
       </div>
 
-      <!-- Information Cards -->
-      <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div 
-          v-for="infoCard in infoCards" 
-          :key="infoCard.id"
-          class="card-ust text-center hover:shadow-xl transition-shadow duration-300"
-        >
-          <div class="flex items-center justify-center w-16 h-16 rounded-full mb-4 mx-auto" :class="infoCard.bgColor">
-            <svg class="w-8 h-8" :class="infoCard.iconColor" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="infoCard.iconPath"></path>
+          <!-- Historial de reservas -->
+          <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Mis Reservas</h2>
+            
+            <div v-if="userReservations.length === 0" class="text-center py-12">
+              <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <p class="text-gray-500 mb-4">No tienes reservas activas</p>
+              <p class="text-sm text-gray-400">Haz tu primera reserva usando el formulario de arriba</p>
+            </div>
+
+            <div v-else class="space-y-4">
+              <div 
+                v-for="reservation in userReservations" 
+                :key="reservation.id"
+                class="border border-gray-200 rounded-xl p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="font-semibold text-gray-900">{{ reservation.roomName }}</h3>
+                  <span :class="[
+                    'px-3 py-1 rounded-full text-sm font-medium',
+                    reservation.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                  ]">
+                    {{ reservation.status === 'active' ? 'Activa' : 'Completada' }}
+                  </span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
+                  <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>{{ formatDate(reservation.date) }}</span>
+                  </div>
+                  <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>{{ reservation.time }} ({{ reservation.duration }}h)</span>
+                  </div>
+                  <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <span>{{ reservation.location }}</span>
+                  </div>
+                  <div class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
             </svg>
+                    <span>{{ reservation.userName }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <h3 class="text-lg font-semibold text-ust-800 mb-3">{{ infoCard.title }}</h3>
-          <p class="text-ust-600 text-sm">{{ infoCard.description }}</p>
+        </div>
+
+        <!-- Sidebar con información -->
+        <div class="space-y-6">
+          <!-- Resumen de la reserva -->
+          <div v-if="selectedRoom" class="bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Resumen de Reserva</h3>
+            <div class="space-y-4">
+              <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                <h4 class="font-semibold text-emerald-800">{{ selectedRoom.name }}</h4>
+                <p class="text-emerald-600 text-sm">{{ selectedRoom.location }}</p>
+              </div>
+              
+              <div v-if="formData.date && formData.time" class="space-y-3">
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Fecha:</span>
+                  <span class="font-medium">{{ formatDate(formData.date) }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Hora:</span>
+                  <span class="font-medium">{{ formData.time }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Duración:</span>
+                  <span class="font-medium">{{ formData.duration }} hora{{ formData.duration > 1 ? 's' : '' }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-600">Capacidad:</span>
+                  <span class="font-medium">{{ selectedRoom.capacity }} personas</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información útil -->
+          <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Información Útil</h3>
+            <div class="space-y-4">
+              <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="font-medium text-gray-900">Horarios de uso</h4>
+                  <p class="text-sm text-gray-600">Lunes a Viernes: 8:00 - 22:00</p>
+                </div>
+              </div>
+              
+              <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="font-medium text-gray-900">Cancelación gratuita</h4>
+                  <p class="text-sm text-gray-600">Hasta 2 horas antes</p>
+        </div>
+      </div>
+              
+              <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="font-medium text-gray-900">Ubicación GPS</h4>
+                  <p class="text-sm text-gray-600">Navegación precisa al aula</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
-
-    <!-- Footer -->
-    <footer class="bg-ust-800 mt-20">
-      <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-          <p class="text-ust-100">&copy; {{ currentYear }} {{ appTitle }}. Todos los derechos reservados.</p>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'ReservePage',
-  data() {
-    return {
-      appTitle: 'StudyRoom',
-      pageTitle: 'Reservar Sala de Estudio',
-      pageSubtitle: 'Selecciona una sala para reservar',
-      submitButtonText: 'Confirmar Reserva',
-      currentYear: new Date().getFullYear(),
-      navigationItems: [
-        { id: 'home', text: 'Inicio', link: '/' },
-        { id: 'search', text: 'Buscar Sala', link: '/gps' }
-      ],
-      rooms: [],
-      selectedRoom: null,
-      minDate: new Date().toISOString().split('T')[0],
-      formData: {
-        nombre: '',
-        email: '',
-        fecha: '',
-        hora: '',
-        duracion: ''
-      },
-      formLabels: {
-        nombre: 'Nombre Completo',
-        email: 'Email',
-        fecha: 'Fecha',
-        hora: 'Hora de Inicio',
-        duracion: 'Duración'
-      },
-      formPlaceholders: {
-        nombre: 'Ingresa tu nombre completo',
-        email: 'tu@email.com',
-        duracion: 'Selecciona duración'
-      },
-      durationOptions: [
-        { value: '1', label: '1 hora' }
-      ],
-      infoCards: [
-        {
-          id: 'cancellation',
-          title: 'Política de Cancelación',
-          description: 'Puedes cancelar tu reserva hasta 2 horas antes del inicio sin penalización.',
-          bgColor: 'bg-ust-100',
-          iconColor: 'text-ust-600',
-          iconPath: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-        },
-        {
-          id: 'confirmation',
-          title: 'Confirmación Inmediata',
-          description: 'Recibirás una confirmación por email inmediatamente después de la reserva.',
-          bgColor: 'bg-ust-accent-100',
-          iconColor: 'text-ust-accent-600',
-          iconPath: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
-        },
-        {
-          id: 'support',
-          title: 'Soporte 24/7',
-          description: 'Nuestro equipo está disponible para ayudarte en cualquier momento.',
-          bgColor: 'bg-ust-100',
-          iconColor: 'text-ust-600',
-          iconPath: 'M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-        }
-      ],
-      validHours: [
-        "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00"
-      ]
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+
+// Salas desde la base de datos Neon
+const availableRooms = ref([]);
+const isLoadingRooms = ref(true);
+const roomsError = ref('');
+
+// Función para obtener las salas de la base de datos
+async function fetchRooms() {
+  isLoadingRooms.value = true;
+  roomsError.value = '';
+  
+  try {
+    const response = await fetch('/api/study-rooms');
+    if (response.ok) {
+      availableRooms.value = await response.json();
+    } else {
+      console.error('Error fetching rooms:', response.status);
+      roomsError.value = 'Error al cargar las salas. Intenta nuevamente.';
+      availableRooms.value = [];
     }
+  } catch (error) {
+    console.error('Error fetching rooms:', error);
+    roomsError.value = 'Error de conexión. Verifica tu internet.';
+    availableRooms.value = [];
+  } finally {
+    isLoadingRooms.value = false;
+  }
+}
+
+// Cargar las salas al montar el componente
+onMounted(() => {
+  fetchRooms();
+});
+
+// Datos del formulario
+const selectedRoom = ref(null);
+const formData = ref({
+  name: '',
+        email: '',
+  date: '',
+  time: '09:00',
+  duration: '1',
+  notes: ''
+});
+
+// Reservas del usuario (ejemplo)
+const userReservations = ref([
+  {
+    id: 1,
+    roomName: 'Sala de Estudio A101',
+    location: 'Edificio A - Piso 1',
+    date: '2024-01-15',
+    time: '14:00',
+    duration: 2,
+    status: 'active',
+    userName: 'Luis Estudiante'
   },
-  methods: {
-    handleNavigation(navId) {
-      switch(navId) {
-        case 'home':
-          this.$router.push('/')
-          break
-        case 'search':
-          this.$router.push('/gps')
-          break
-      }
-    },
-    async fetchRooms() {
-      const res = await fetch('/api/study-rooms')
-      this.rooms = await res.json()
-    },
-    selectRoom(room) {
-      this.selectedRoom = room
-    },
-    async handleSubmit() {
-      if (!this.validateForm()) return;
-      const res = await fetch('/api/reserve', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+  {
+    id: 2,
+    roomName: 'Laboratorio B205',
+    location: 'Edificio B - Piso 2',
+    date: '2024-01-10',
+    time: '10:00',
+    duration: 1,
+    status: 'completed',
+    userName: 'Luis Estudiante'
+  }
+]);
+
+// Fecha de hoy para validación
+const today = computed(() => {
+  return new Date().toISOString().split('T')[0];
+});
+
+// Función para formatear fechas
+function formatDate(dateString) {
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString('es-ES', options);
+}
+
+// Función para enviar la reserva
+async function submitReservation() {
+  if (!selectedRoom.value || !formData.value.name || !formData.value.email) {
+    alert('Por favor completa todos los campos requeridos');
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/reserve', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
         body: JSON.stringify({
-          nombre: this.formData.nombre,
-          email: this.formData.email,
-          fecha: this.formData.fecha,
-          hora: this.formData.hora,
-          studyRoomId: this.selectedRoom.id
-        })
+        roomId: selectedRoom.value.id,
+        name: formData.value.name,
+        email: formData.value.email,
+        date: formData.value.date,
+        time: formData.value.time,
+        duration: formData.value.duration,
+        notes: formData.value.notes
+      })
+    });
+
+    if (response.ok) {
+      // Agregar la nueva reserva al historial
+      userReservations.value.unshift({
+        id: Date.now(),
+        roomName: selectedRoom.value.name,
+        location: selectedRoom.value.location,
+        date: formData.value.date,
+        time: formData.value.time,
+        duration: parseInt(formData.value.duration),
+        status: 'active',
+        userName: formData.value.name
       });
-      const data = await res.json();
-      if (data.error) {
-        alert(data.error);
-      } else {
-        this.showSuccessMessage();
-        this.resetForm();
-        this.selectedRoom = null;
-      }
-    },
-    validateForm() {
-      if (!this.formData.nombre || !this.formData.email || !this.formData.fecha || 
-          !this.formData.hora || !this.formData.duracion) {
-        alert('Por favor, completa todos los campos obligatorios.')
-        return false
-      }
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!emailRegex.test(this.formData.email)) {
-        alert('Por favor, ingresa un email válido.')
-        return false
-      }
-      const selectedDate = new Date(this.formData.fecha)
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      if (selectedDate < today) {
-        alert('La fecha no puede ser anterior a hoy.')
-        return false
-      }
-      return true
-    },
-    showSuccessMessage() {
-      alert('¡Reserva enviada correctamente! Te contactaremos pronto.')
-    },
-    resetForm() {
-      this.formData = {
-        nombre: '',
+
+      // Limpiar el formulario
+      selectedRoom.value = null;
+      formData.value = {
+        name: '',
         email: '',
-        fecha: '',
-        hora: '',
-        duracion: ''
-      }
-    },
-    initializePage() {
-      const today = new Date().toISOString().split('T')[0]
-      this.formData.fecha = today
+        date: '',
+        time: '09:00',
+        duration: '1',
+        notes: ''
+      };
+
+      alert('¡Reserva realizada con éxito!');
+    } else {
+      alert('Error al realizar la reserva. Intenta nuevamente.');
     }
-  },
-  mounted() {
-    this.initializePage()
-    this.fetchRooms()
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error de conexión. Intenta nuevamente.');
   }
 }
 </script>

@@ -15,7 +15,14 @@ export default defineEventHandler(async (event) => {
   // 3. Manejar PUT: actualizar una sala
   if (event.req.method === 'PUT') {
     const body = await readBody(event);
-    return await updateStudyRoom(id, body.name, body.number);
+    return await updateStudyRoom(
+      id, 
+      body.name, 
+      body.number, 
+      body.capacity, 
+      body.available, 
+      body.description
+    );
   }
 
   // 4. Manejar DELETE: eliminar una sala

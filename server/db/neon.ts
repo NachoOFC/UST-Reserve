@@ -1,6 +1,6 @@
 // server/db/neon.ts
 import 'dotenv/config'; // Fuerza la carga del .env, compatible con TS
-import { neon } from '@netlify/neon';
+import { neon } from '@neondatabase/serverless'; // <-- Cambiado aquí
 
 // Get runtime config (solo funcionará en contexto Nuxt, pero para debug mantenemos ambos)
 let databaseUrl = process.env.DATABASE_URL;

@@ -2,11 +2,41 @@ import { getAllStudyRooms, createStudyRoom } from '~/server/queries/studyRooms';
 
 export default defineEventHandler(async (event) => {
   if (event.req.method === 'GET') {
-    return await getAllStudyRooms();
+    try {
+      return await getAllStudyRooms();
+    } catch (error) {
+      console.error('Error en GET /api/study-rooms:', error);
+      return { statusCode: 500, message: 'Error interno al obtener salas', error: error.message };
+    }
   }
   if (event.req.method === 'POST') {
-    const body = await readBody(event);
-    return await createStudyRoom(body.name, body.number);
+    try {
+      const body = await readBody(event);
+      console.log('Datos recibidos en POST /api/study-rooms:', body);
+      // Validar datos mínimos
+      if (!body.name || !body.number || !body.capacity) {
+        console.error('Faltan datos obligatorios para crear la sala');
+        return { statusCode: 400, message: 'Faltan datos obligatorios para crear la sala' };
+      }
+      // Cast de tipos
+      const name = String(body.name);
+      const number = Number(body.number);
+      const capacity = Number(body.capacity);
+      const available = body.available === 'false' ? false : Boolean(body.available);
+      const description = body.description ? String(body.description) : null;
+      const result = await createStudyRoom(
+        name, 
+        number, 
+        capacity, 
+        available, 
+        description
+      );
+      console.log('Resultado de createStudyRoom:', result);
+      return result;
+    } catch (error) {
+      console.error('Error en POST /api/study-rooms:', error);
+      return { statusCode: 500, message: 'Error interno al crear sala', error: error.message };
+    }
   }
   return { statusCode: 405, message: 'Method Not Allowed' };
 }); 
