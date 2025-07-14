@@ -51,31 +51,37 @@
                 </div>
 
                 <!-- Lista de salas -->
-                <div v-else-if="availableRooms.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div v-else-if="roomsWithAvailability.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div 
-                    v-for="room in availableRooms" 
+                    v-for="room in roomsWithAvailability" 
                     :key="room.id"
-                    @click="selectedRoom = room"
+                    @click="room.available !== false && !room.allReserved ? selectedRoom = room : null"
                     :class="[
                       'p-4 border-2 rounded-xl cursor-pointer transition-all duration-200',
                       selectedRoom?.id === room.id 
                         ? 'border-emerald-500 bg-emerald-50' 
-                        : 'border-gray-200 hover:border-gray-300'
+                        : 'border-gray-200 hover:border-gray-300',
+                      room.available === false || room.allReserved ? 'opacity-50 cursor-not-allowed' : ''
                     ]"
+                    :aria-disabled="room.available === false || room.allReserved"
                   >
                     <div class="flex items-center justify-between mb-2">
                       <h3 class="font-semibold text-gray-900">{{ room.name }}</h3>
-                      <span class="text-sm text-emerald-600 font-medium">Disponible</span>
-            </div>
+                      <span class="text-sm font-medium" :class="room.available !== false && !room.allReserved ? 'text-emerald-600' : 'text-gray-400'">
+                        <template v-if="room.available === false">No disponible</template>
+                        <template v-else-if="room.allReserved">No hay horarios disponibles hoy</template>
+                        <template v-else>Disponible</template>
+                      </span>
+                    </div>
                     <p class="text-sm text-gray-600 mb-2">{{ room.location }}</p>
                     <div class="flex items-center text-sm text-gray-500">
                       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                       </svg>
                       <span>Capacidad: {{ room.capacity }} personas</span>
-          </div>
-        </div>
-      </div>
+                    </div>
+                  </div>
+                </div>
 
                 <!-- Sin salas disponibles -->
                 <div v-else class="text-center py-8">
@@ -120,6 +126,7 @@
                 type="date" 
                     required
                     :min="today"
+                    :max="tomorrow"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
                   >
                 </div>
@@ -130,7 +137,15 @@
                     required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
                   >
-                    <option v-for="h in validHours" :key="h" :value="h">{{ h }}</option>
+                    <option value="" disabled>Selecciona una hora</option>
+                    <option
+                      v-for="h in validHours"
+                      :key="h"
+                      :value="h"
+                      :disabled="isHourReserved(h)"
+                    >
+                      {{ isHourReserved(h) ? h + ' (Reservada)' : h }}
+                    </option>
                   </select>
                 </div>
                 <div>
@@ -303,6 +318,8 @@
 </template>
 
 <script>
+import { useToast } from 'vue-toastification';
+
 export default {
   data() {
     return {
@@ -317,7 +334,7 @@ export default {
         name: '',
         email: '',
         date: '',
-        time: '09:00',
+        time: '', // <-- valor inicial vacío para forzar selección
         duration: '1',
       },
       userReservations: [
@@ -342,12 +359,40 @@ export default {
           userName: 'Luis Estudiante',
         },
       ],
+      reservedHours: [],
     };
   },
   computed: {
     today() {
       return new Date().toISOString().split('T')[0];
     },
+    tomorrow() {
+      const t = new Date();
+      t.setDate(t.getDate() + 1);
+      return t.toISOString().split('T')[0];
+    },
+    roomsWithAvailability() {
+      // Devuelve las salas con info de si tienen horarios disponibles para la fecha seleccionada
+      return this.availableRooms.map(room => {
+        if (!this.formData.date) return { ...room, allReserved: false };
+        // Si todos los horarios están reservados, marcar como allReserved
+        const reserved = this.reservedHours;
+        const allReserved = this.validHours.every(h => reserved.includes(h));
+        return { ...room, allReserved };
+      });
+    },
+    selectKey() {
+      // Forzar refresco si cambian sala, fecha o las horas reservadas
+      return `${this.selectedRoom ? this.selectedRoom.id : 'none'}-${this.formData.date}-${this.reservedHours.join(',')}`;
+    },
+  },
+  watch: {
+    'formData.date': 'fetchReservedHours',
+    selectedRoom: 'fetchReservedHours'
+  },
+  setup() {
+    const toast = useToast();
+    return { toast };
   },
   methods: {
     async fetchRooms() {
@@ -370,13 +415,32 @@ export default {
         this.isLoadingRooms = false;
       }
     },
+    async fetchReservedHours() {
+      this.reservedHours = [];
+      if (!this.selectedRoom || !this.formData.date) return;
+      try {
+        const response = await fetch(`/api/reserve?studyRoomId=${this.selectedRoom.id}&fecha=${this.formData.date}`);
+        if (response.ok) {
+          const data = await response.json();
+          this.reservedHours = data.reservedHours || [];
+          console.log('Horas reservadas:', this.reservedHours);
+        }
+      } catch (e) {
+        this.reservedHours = [];
+      }
+    },
     formatDate(dateString) {
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       return new Date(dateString).toLocaleDateString('es-ES', options);
     },
+    formatHour(h) {
+      if (!h) return '';
+      const [hh, mm] = h.split(':');
+      return `${hh.padStart(2, '0')}:${mm.padStart(2, '0')}`;
+    },
     async submitReservation() {
       if (!this.selectedRoom || !this.formData.name || !this.formData.email) {
-        alert('Por favor completa todos los campos requeridos');
+        this.toast.error('Por favor completa todos los campos requeridos');
         return;
       }
       try {
@@ -393,7 +457,8 @@ export default {
             hora: this.formData.time,
           }),
         });
-        if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
           this.userReservations.unshift({
             id: Date.now(),
             roomName: this.selectedRoom.name,
@@ -404,26 +469,39 @@ export default {
             status: 'active',
             userName: this.formData.name,
           });
+          // Limpiar formulario y sala seleccionada
           this.selectedRoom = null;
           this.formData = {
             name: '',
             email: '',
             date: '',
-            time: '09:00',
+            time: '',
             duration: '1',
           };
-          alert('¡Reserva realizada con éxito!');
+          this.toast.success('¡Reserva realizada con éxito!');
+        } else if (result.error) {
+          this.toast.error(result.error);
         } else {
-          alert('Error al realizar la reserva. Intenta nuevamente.');
+          this.toast.error('Error al realizar la reserva. Intenta nuevamente.');
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Error de conexión. Intenta nuevamente.');
+        this.toast.error('Error de conexión. Intenta nuevamente.');
       }
     },
+    isHourReserved(hour) {
+      return this.reservedHours.includes(hour);
+    },
+    
   },
   mounted() {
     this.fetchRooms();
+    
+    // Agregar función de prueba al window para debugging
+    if (typeof window !== 'undefined') {
+      window.testReservation = this.testReservation;
+      console.log('Función de prueba disponible como window.testReservation()');
+    }
   },
 };
 </script>

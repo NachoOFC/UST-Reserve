@@ -2,6 +2,19 @@ import { sql } from '../../db/neon';
 
 export default defineEventHandler(async (event) => {
   try {
+    if (event.method === 'GET') {
+      const { studyRoomId, fecha } = getQuery(event);
+      if (studyRoomId && fecha) {
+        const reservas = await sql`
+          SELECT start_time FROM reserve
+          WHERE study_room_id = ${studyRoomId}
+            AND reservation_date = ${fecha}
+        `;
+        const reservedHours = reservas.map(r => r.start_time.slice(0,5));
+        return { reservedHours };
+      }
+      return { reservedHours: [] };
+    }
     if (event.method !== 'POST') {
       return { error: 'Método no permitido' };
     }
@@ -45,6 +58,12 @@ export default defineEventHandler(async (event) => {
     `;
     if (reservas.length > 0) {
       return { error: 'La sala ya está reservada en ese horario.' };
+    }
+
+    // Verificar que la sala esté disponible
+    const sala = await sql`SELECT * FROM study_rooms WHERE id = ${studyRoomId}`;
+    if (!sala[0] || sala[0].available === false) {
+      return { error: 'Esta sala no está disponible para reservas en este momento.' };
     }
 
     // Crear reserva

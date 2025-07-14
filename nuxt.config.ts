@@ -18,6 +18,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: [
     "@/assets/css/tailwind.css",
+    'vue-toastification/dist/index.css',
   ],
   
   // Experimental features to fix initialization issues
