@@ -227,16 +227,6 @@
               </div>
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Descripción (opcional)</label>
-              <textarea 
-                v-model="formData.description"
-                rows="3"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                placeholder="Descripción de la sala, equipamiento, etc."
-              ></textarea>
-            </div>
-
             <div v-if="feedback" class="p-3 rounded-lg text-sm" :class="feedback.includes('éxito') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
               {{ feedback }}
             </div>
@@ -280,7 +270,6 @@ const formData = ref({
   number: '',
   capacity: '',
   available: true,
-  description: ''
 });
 
 // Computed properties
@@ -326,7 +315,6 @@ function editRoom(room) {
     number: room.number,
     capacity: room.capacity,
     available: room.available,
-    description: room.description || ''
   };
 }
 
@@ -364,7 +352,6 @@ function closeForm() {
     number: '',
     capacity: '',
     available: true,
-    description: ''
   };
   feedback.value = '';
 }

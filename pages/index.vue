@@ -387,7 +387,6 @@ const RoomCard = {
             </svg>
             <span class="text-sm">Capacidad: {{ room.capacity }} personas</span>
           </div>
-          <div class="text-gray-500 text-sm mb-2" v-if="room.description">{{ room.description }}</div>
         </div>
         <div class="mt-4 flex space-x-2">
           <NuxtLink 

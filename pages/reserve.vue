@@ -192,17 +192,6 @@
                 </div>
           </div>
 
-              <!-- Notas adicionales -->
-          <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Notas adicionales (opcional)</label>
-                <textarea 
-                  v-model="formData.notes"
-                  rows="3"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-                  placeholder="Especificaciones especiales, equipamiento adicional, etc."
-                ></textarea>
-          </div>
-
               <!-- Botones de acción -->
               <div class="flex space-x-4 pt-4">
                 <NuxtLink 
@@ -408,7 +397,6 @@ const formData = ref({
   date: '',
   time: '09:00',
   duration: '1',
-  notes: ''
 });
 
 // Reservas del usuario (ejemplo)
@@ -490,7 +478,6 @@ async function submitReservation() {
         date: '',
         time: '09:00',
         duration: '1',
-        notes: ''
       };
 
       alert('¡Reserva realizada con éxito!');

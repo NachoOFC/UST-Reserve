@@ -185,7 +185,6 @@
                       </span>
                     </div>
                   </div>
-                  <p class="text-ust-600 text-sm">{{ sala.descripcion }}</p>
                 </div>
                 <div class="ml-6 flex flex-col space-y-2">
                   <button 
@@ -330,8 +329,7 @@ export default {
           capacidad: 4,
           tipo: 'Grupal',
           disponible: true,
-          equipos: ['WiFi', 'Proyector', 'Pizarra'],
-          descripcion: 'Sala perfecta para trabajo en equipo con excelente iluminación natural.'
+          equipos: ['WiFi', 'Proyector', 'Pizarra']
         },
         {
           id: 2,
@@ -341,8 +339,7 @@ export default {
           capacidad: 1,
           tipo: 'Individual',
           disponible: true,
-          equipos: ['WiFi', 'Enchufe'],
-          descripcion: 'Espacio individual ideal para concentración máxima.'
+          equipos: ['WiFi', 'Enchufe']
         },
         {
           id: 3,
@@ -352,8 +349,7 @@ export default {
           capacidad: 12,
           tipo: 'Conferencia',
           disponible: false,
-          equipos: ['WiFi', 'Proyector', 'Sistema de Audio', 'Pizarra'],
-          descripcion: 'Amplia sala para presentaciones y reuniones grupales.'
+          equipos: ['WiFi', 'Proyector', 'Sistema de Audio', 'Pizarra']
         },
         {
           id: 4,
@@ -363,8 +359,7 @@ export default {
           capacidad: 6,
           tipo: 'Grupal',
           disponible: true,
-          equipos: ['WiFi', 'Pizarra', 'Computadora'],
-          descripcion: 'Sala equipada con computadora para trabajos digitales.'
+          equipos: ['WiFi', 'Pizarra', 'Computadora']
         },
         {
           id: 5,
@@ -374,8 +369,7 @@ export default {
           capacidad: 1,
           tipo: 'Individual',
           disponible: true,
-          equipos: ['WiFi', 'Lámpara de escritorio'],
-          descripcion: 'Espacio cómodo y tranquilo para estudio individual.'
+          equipos: ['WiFi', 'Lámpara de escritorio']
         }
       ]
     }
@@ -497,7 +491,7 @@ export default {
     },
     
     showRoomDetails(sala) {
-      alert(`Detalles de ${sala.nombre}:\n${sala.descripcion}`)
+      alert(`Detalles de ${sala.nombre}:\n`)
     },
     
     showRoomInMap(sala) {
