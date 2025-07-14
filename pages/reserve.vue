@@ -39,7 +39,7 @@
           <div v-for="room in rooms" :key="room.id" class="bg-white rounded-xl shadow p-6 flex flex-col md:flex-row md:items-center md:justify-between border border-ust-institucional">
             <div>
               <h3 class="text-xl font-bold text-ust-institucional mb-1">{{ room.name }}</h3>
-              <p class="text-gray-600">Sala N° {{ room.number }}</p>
+              <p class="text-gray-600">Sala N° {{ room.number }} | Capacidad: {{ room.capacity }} personas</p>
             </div>
             <button @click="selectRoom(room)" class="bg-[#3a9a3a] hover:bg-[#2d7a2d] text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 mt-4 md:mt-0">Reservar</button>
           </div>
@@ -89,18 +89,21 @@
                 id="fecha" 
                 v-model="formData.fecha"
                 required
+                :min="minDate"
                 class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
               >
             </div>
             <div>
               <label for="hora" class="block text-sm font-medium text-ust-700 mb-2">{{ formLabels.hora }}</label>
-              <input 
-                type="time" 
-                id="hora" 
+              <select
+                id="hora"
                 v-model="formData.hora"
                 required
                 class="w-full px-4 py-3 border border-ust-200 rounded-lg focus:ring-2 focus:ring-ust-500 focus:border-transparent transition-colors duration-200"
               >
+                <option value="">Selecciona hora de inicio</option>
+                <option v-for="h in validHours" :key="h" :value="h">{{ h }}</option>
+              </select>
             </div>
           </div>
 
@@ -181,6 +184,7 @@ export default {
       ],
       rooms: [],
       selectedRoom: null,
+      minDate: new Date().toISOString().split('T')[0],
       formData: {
         nombre: '',
         email: '',
@@ -201,12 +205,7 @@ export default {
         duracion: 'Selecciona duración'
       },
       durationOptions: [
-        { value: '1', label: '1 hora' },
-        { value: '2', label: '2 horas' },
-        { value: '3', label: '3 horas' },
-        { value: '4', label: '4 horas' },
-        { value: '6', label: '6 horas' },
-        { value: '8', label: '8 horas' }
+        { value: '1', label: '1 hora' }
       ],
       infoCards: [
         {
@@ -233,6 +232,9 @@ export default {
           iconColor: 'text-ust-600',
           iconPath: 'M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
         }
+      ],
+      validHours: [
+        "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00"
       ]
     }
   },
@@ -254,13 +256,27 @@ export default {
     selectRoom(room) {
       this.selectedRoom = room
     },
-    handleSubmit() {
-      if (!this.validateForm()) {
-        return
+    async handleSubmit() {
+      if (!this.validateForm()) return;
+      const res = await fetch('/api/reserve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: this.formData.nombre,
+          email: this.formData.email,
+          fecha: this.formData.fecha,
+          hora: this.formData.hora,
+          studyRoomId: this.selectedRoom.id
+        })
+      });
+      const data = await res.json();
+      if (data.error) {
+        alert(data.error);
+      } else {
+        this.showSuccessMessage();
+        this.resetForm();
+        this.selectedRoom = null;
       }
-      this.showSuccessMessage()
-      this.resetForm()
-      this.selectedRoom = null
     },
     validateForm() {
       if (!this.formData.nombre || !this.formData.email || !this.formData.fecha || 
