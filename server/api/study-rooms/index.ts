@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
       return await getAllStudyRooms();
     } catch (error) {
       console.error('Error en GET /api/study-rooms:', error);
-      return { statusCode: 500, message: 'Error interno al obtener salas', error: error.message };
+      return { statusCode: 500, message: 'Error interno al obtener salas'};
     }
   }
   if (event.req.method === 'POST') {
@@ -29,13 +29,15 @@ export default defineEventHandler(async (event) => {
         number, 
         capacity, 
         available, 
-        description
       );
       console.log('Resultado de createStudyRoom:', result);
       return result;
     } catch (error) {
       console.error('Error en POST /api/study-rooms:', error);
-      return { statusCode: 500, message: 'Error interno al crear sala', error: error.message };
+      return {
+        statusCode: 500,
+        message: "Error interno al crear la sala",
+      };
     }
   }
   return { statusCode: 405, message: 'Method Not Allowed' };
