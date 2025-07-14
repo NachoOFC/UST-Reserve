@@ -1,53 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- Header consistente con el index -->
-    <header class="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-40">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-20">
-          <!-- Logo y navegación -->
-          <div class="flex items-center space-x-8">
-            <div class="flex items-center space-x-4">
-              <NuxtLink to="/" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-            </NuxtLink>
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <span class="text-white font-bold text-lg">UST</span>
-                </div>
-                <div>
-                  <h1 class="text-xl font-bold text-gray-900">TominoSpace</h1>
-                  <p class="text-sm text-gray-600">Sistema de Reservas</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Acciones del usuario -->
-          <div class="flex items-center space-x-4">
-            <button class="p-2 rounded-lg hover:bg-gray-100 transition-colors relative">
-              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM10.5 3.75a6 6 0 00-6 6v3.75l-2.25 2.25V19.5h12.5V15.75L16.5 13.5V9.75a6 6 0 00-6-6z"/>
-              </svg>
-              <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-            </button>
-            <div class="relative">
-              <button class="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center">
-                  <span class="text-white font-semibold text-sm">L</span>
-                </div>
-                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Contenido principal -->
+    <!-- El header se elimina, solo queda el contenido principal -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Hero section para reservas -->
       <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-8 text-white mb-8">

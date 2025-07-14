@@ -24,11 +24,11 @@ export async function getStudyRoomById(id: number) {
 }
 
 // Crear una sala nueva
-export async function createStudyRoom(name: string, number: number, capacity: number, available: boolean, description?: string) {
+export async function createStudyRoom(name: string, number: number, capacity: number, available: boolean) {
   try {
     const [room] = await sql`
-      INSERT INTO study_rooms (name, number, capacity, available, description)
-      VALUES (${name}, ${number}, ${capacity}, ${available}, ${description || null})
+      INSERT INTO study_rooms (name, number, capacity, available)
+      VALUES (${name}, ${number}, ${capacity}, ${available})
       RETURNING *`;
     return room;
   } catch (error) {
@@ -38,11 +38,11 @@ export async function createStudyRoom(name: string, number: number, capacity: nu
 }
 
 // Actualizar una sala
-export async function updateStudyRoom(id: number, name: string, number: number, capacity: number, available: boolean, description?: string) {
+export async function updateStudyRoom(id: number, name: string, number: number, capacity: number, available: boolean) {
   try {
     const [room] = await sql`
       UPDATE study_rooms
-      SET name = ${name}, number = ${number}, capacity = ${capacity}, available = ${available}, description = ${description || null}
+      SET name = ${name}, number = ${number}, capacity = ${capacity}, available = ${available}
       WHERE id = ${id}
       RETURNING *`;
     return room;

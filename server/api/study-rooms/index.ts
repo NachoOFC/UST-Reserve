@@ -23,12 +23,11 @@ export default defineEventHandler(async (event) => {
       const number = Number(body.number);
       const capacity = Number(body.capacity);
       const available = body.available === 'false' ? false : Boolean(body.available);
-      const description = body.description ? String(body.description) : null;
       const result = await createStudyRoom(
         name, 
         number, 
         capacity, 
-        available, 
+        available
       );
       console.log('Resultado de createStudyRoom:', result);
       return result;
