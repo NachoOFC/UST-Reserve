@@ -172,25 +172,24 @@
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">Hora de inicio</label>
-                  <input 
+                  <select
                     v-model="formData.time"
-                    type="time" 
-                required
+                    required
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
-              >
-            </div>
-            <div>
+                  >
+                    <option v-for="h in validHours" :key="h" :value="h">{{ h }}</option>
+                  </select>
+                </div>
+                <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">Duración</label>
-              <select
+                  <select
                     v-model="formData.duration"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
                   >
                     <option value="1">1 hora</option>
                     <option value="2">2 horas</option>
-                    <option value="3">3 horas</option>
-                    <option value="4">4 horas</option>
-              </select>
-            </div>
+                  </select>
+                </div>
           </div>
 
               <!-- Notas adicionales -->
@@ -364,6 +363,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 
+// Horas válidas para seleccionar
+const validHours = [
+  "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"
+];
 // Salas desde la base de datos Neon
 const availableRooms = ref([]);
 const isLoadingRooms = ref(true);
@@ -456,14 +459,13 @@ async function submitReservation() {
       headers: {
         'Content-Type': 'application/json',
       },
-        body: JSON.stringify({
-        roomId: selectedRoom.value.id,
-        name: formData.value.name,
+      body: JSON.stringify({
+        studyRoomId: selectedRoom.value.id, // antes roomId
+        nombre: formData.value.name,        // antes name
         email: formData.value.email,
-        date: formData.value.date,
-        time: formData.value.time,
-        duration: formData.value.duration,
-        notes: formData.value.notes
+        fecha: formData.value.date,         // antes date
+        hora: formData.value.time,          // antes time
+        // duration y notes no se usan en backend, se pueden omitir
       })
     });
 
