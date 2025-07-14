@@ -11,8 +11,10 @@
   </div>
 </template>
 
-<script setup>
-// Página minimalista: solo el botón Tour 360
+<script>
+export default {
+  // Página minimalista: solo el botón Tour 360
+};
 </script>
 
 <style scoped>

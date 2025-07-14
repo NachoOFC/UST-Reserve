@@ -82,133 +82,121 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue';
-
-const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: { template: '<svg class=\'w-4 h-4\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z\'/><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width="2" d=\'M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z\'/></svg>' } },
-  { id: 'rooms', label: 'Salas', icon: { template: '<svg class=\'w-4 h-4\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4\'/></svg>' } }
-];
-
-const activeView = ref('dashboard');
-const searchTerm = ref('');
-const showNotifications = ref(false);
-const showUserMenu = ref(false);
-
-// Datos del usuario
-const userName = ref('Luis Estudiante');
-const userEmail = ref('luis.estudiante@ust.cl');
-const userInitials = computed(() => {
-  return userName.value.split(' ').map(n => n[0]).join('').toUpperCase();
-});
-
-// Notificaciones
-const notifications = ref([
-  { id: 1, type: 'success', message: 'Reserva confirmada para mañana 14:00', time: '5 min' },
-  { id: 2, type: 'info', message: 'Nueva sala disponible en Edificio D', time: '1 hora' },
-  { id: 3, type: 'warning', message: 'Mantenimiento programado Sala A101', time: '2 horas' }
-]);
-
-// Salas desde la base de datos
-const rooms = ref([]);
-const isLoadingRooms = ref(true);
-
-async function fetchRooms() {
-  try {
-    const res = await fetch('/api/study-rooms');
-    if (res.ok) {
-      rooms.value = await res.json();
-    } else {
-      console.error('Error fetching rooms:', res.status);
-      rooms.value = [];
-    }
-  } catch (error) {
-    console.error('Error fetching rooms:', error);
-    rooms.value = [];
-  } finally {
-    isLoadingRooms.value = false;
-  }
-}
-
-onMounted(fetchRooms);
-
-const filteredRooms = computed(() =>
-  rooms.value.filter(room =>
-    room.name?.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
-    String(room.number).includes(searchTerm.value)
-  )
-);
-
-// Funciones del perfil
-function goToProfile() {
-  showUserMenu.value = false;
-  // Aquí puedes agregar navegación al perfil
-  console.log('Ir al perfil');
-}
-
-function goToReservations() {
-  showUserMenu.value = false;
-  // Aquí puedes agregar navegación a reservas
-  console.log('Ir a reservas');
-}
-
-function goToSettings() {
-  showUserMenu.value = false;
-  // Aquí puedes agregar navegación a configuración
-  console.log('Ir a configuración');
-}
-
-function logout() {
-  showUserMenu.value = false;
-  // Aquí puedes agregar lógica de logout
-  console.log('Cerrar sesión');
-}
-
-// Funciones de notificaciones
-function handleNotificationClick(notification) {
-  showNotifications.value = false;
-  console.log('Notificación clickeada:', notification);
-  // Aquí puedes agregar lógica específica para cada tipo de notificación
-}
-
-// RoomCard como componente local mejorado
-const RoomCard = {
-  props: ['room'],
-  template: `
-    <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col justify-between h-full">
-      <div class="p-6 flex-1 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <h3 class="text-xl font-bold text-gray-900">{{ room.name }}</h3>
-            <span class="px-3 py-1 rounded-full text-sm font-medium"
-              :class="room.available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-              {{ room.available ? 'Disponible' : 'Ocupada' }}
-            </span>
-          </div>
-          <div class="flex items-center text-gray-600 mb-2">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6M9 11h6M9 15h6"/>
-            </svg>
-            <span class="text-sm">N°: {{ room.number }}</span>
-          </div>
-          <div class="flex items-center text-gray-600 mb-2">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-            </svg>
-            <span class="text-sm">Capacidad: {{ room.capacity }} personas</span>
+<script>
+export default {
+  data() {
+    return {
+      navItems: [
+        { id: 'dashboard', label: 'Dashboard', icon: { template: '<svg class=\'w-4 h-4\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z\'/><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width="2" d=\'M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z\'/></svg>' } },
+        { id: 'rooms', label: 'Salas', icon: { template: '<svg class=\'w-4 h-4\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4\'/></svg>' } }
+      ],
+      activeView: 'dashboard',
+      searchTerm: '',
+      showNotifications: false,
+      showUserMenu: false,
+      userName: 'Luis Estudiante',
+      userEmail: 'luis.estudiante@ust.cl',
+      notifications: [
+        { id: 1, type: 'success', message: 'Reserva confirmada para mañana 14:00', time: '5 min' },
+        { id: 2, type: 'info', message: 'Nueva sala disponible en Edificio D', time: '1 hora' },
+        { id: 3, type: 'warning', message: 'Mantenimiento programado Sala A101', time: '2 horas' }
+      ],
+      rooms: [],
+      isLoadingRooms: true,
+    };
+  },
+  computed: {
+    userInitials() {
+      return this.userName.split(' ').map(n => n[0]).join('').toUpperCase();
+    },
+    filteredRooms() {
+      return this.rooms.filter(room =>
+        room.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        String(room.number).includes(this.searchTerm)
+      );
+    },
+  },
+  methods: {
+    goToProfile() {
+      this.showUserMenu = false;
+      console.log('Ir al perfil');
+    },
+    goToReservations() {
+      this.showUserMenu = false;
+      console.log('Ir a reservas');
+    },
+    goToSettings() {
+      this.showUserMenu = false;
+      console.log('Ir a configuración');
+    },
+    logout() {
+      this.showUserMenu = false;
+      console.log('Cerrar sesión');
+    },
+    handleNotificationClick(notification) {
+      this.showNotifications = false;
+      console.log('Notificación clickeada:', notification);
+    },
+    async fetchRooms() {
+      try {
+        const res = await fetch('/api/study-rooms');
+        if (res.ok) {
+          this.rooms = await res.json();
+        } else {
+          console.error('Error fetching rooms:', res.status);
+          this.rooms = [];
+        }
+      } catch (error) {
+        console.error('Error fetching rooms:', error);
+        this.rooms = [];
+      } finally {
+        this.isLoadingRooms = false;
+      }
+    },
+  },
+  mounted() {
+    this.fetchRooms();
+  },
+  components: {
+    RoomCard: {
+      props: ['room'],
+      template: `
+        <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col justify-between h-full">
+          <div class="p-6 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xl font-bold text-gray-900">{{ room.name }}</h3>
+                <span class="px-3 py-1 rounded-full text-sm font-medium"
+                  :class="room.available ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                  {{ room.available ? 'Disponible' : 'Ocupada' }}
+                </span>
+              </div>
+              <div class="flex items-center text-gray-600 mb-2">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6M9 11h6M9 15h6"/>
+                </svg>
+                <span class="text-sm">N°: {{ room.number }}</span>
+              </div>
+              <div class="flex items-center text-gray-600 mb-2">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <span class="text-sm">Capacidad: {{ room.capacity }} personas</span>
+              </div>
+            </div>
+            <div class="mt-4 flex space-x-2">
+              <NuxtLink 
+                :to="'/reserve'"
+                class="flex-1 py-2 px-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium text-center"
+              >
+                Reservar
+              </NuxtLink>
+            </div>
           </div>
         </div>
-        <div class="mt-4 flex space-x-2">
-          <NuxtLink 
-            :to="'/reserve'"
-            class="flex-1 py-2 px-4 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium text-center"
-          >
-            Reservar
-          </NuxtLink>
-        </div>
-      </div>
-    </div>
-  `
+      `,
+    },
+  },
 };
 </script>
 

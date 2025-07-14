@@ -253,152 +253,144 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue';
-
-const showCreateForm = ref(false);
-const editingRoom = ref(null);
-const feedback = ref('');
-
-// Salas desde la base de datos
-const rooms = ref([]);
-const isLoadingRooms = ref(true);
-
-// Formulario
-const formData = ref({
-  name: '',
-  number: '',
-  capacity: '',
-  available: true,
-});
-
-// Computed properties
-const filteredRooms = computed(() => rooms.value);
-
-const availableRoomsCount = computed(() => 
-  rooms.value.filter(room => room.available).length
-);
-
-const occupiedRoomsCount = computed(() => 
-  rooms.value.filter(room => !room.available).length
-);
-
-// Funciones
-async function fetchRooms() {
-  isLoadingRooms.value = true;
-  try {
-    const response = await fetch('/api/study-rooms');
-    if (response.ok) {
-      rooms.value = await response.json();
-    } else {
-      console.error('Error fetching rooms:', response.status);
-      rooms.value = [];
-    }
-  } catch (error) {
-    console.error('Error fetching rooms:', error);
-    rooms.value = [];
-  } finally {
-    isLoadingRooms.value = false;
-  }
-}
-
-async function refreshRooms() {
-  await fetchRooms();
-  feedback.value = 'Lista actualizada correctamente';
-  setTimeout(() => feedback.value = '', 3000);
-}
-
-function editRoom(room) {
-  editingRoom.value = room;
-  formData.value = {
-    name: room.name,
-    number: room.number,
-    capacity: room.capacity,
-    available: room.available,
-  };
-}
-
-async function deleteRoom(room) {
-  if (confirm(`¿Estás seguro de que quieres eliminar la sala "${room.name}"?`)) {
-    try {
-      const response = await fetch(`/api/study-rooms/${room.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (response.ok) {
-        feedback.value = `Sala "${room.name}" eliminada correctamente`;
-        await fetchRooms(); // Recargar la lista
-        setTimeout(() => feedback.value = '', 3000);
-      } else {
-        feedback.value = 'Error al eliminar la sala';
-        setTimeout(() => feedback.value = '', 3000);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      feedback.value = 'Error de conexión al eliminar';
-      setTimeout(() => feedback.value = '', 3000);
-    }
-  }
-}
-
-function closeForm() {
-  showCreateForm.value = false;
-  editingRoom.value = null;
-  formData.value = {
-    name: '',
-    number: '',
-    capacity: '',
-    available: true,
-  };
-  feedback.value = '';
-}
-
-async function submitForm() {
-  feedback.value = 'Intentando crear sala...';
-  console.log('submitForm ejecutado', formData.value);
-  try {
-    // Cast de tipos antes de enviar
-    const payload = {
-      ...formData.value,
-      number: Number(formData.value.number),
-      capacity: Number(formData.value.capacity),
-      available: formData.value.available === 'false' ? false : Boolean(formData.value.available)
-    };
-    const url = editingRoom.value 
-      ? `/api/study-rooms/${editingRoom.value.id}` 
-      : '/api/study-rooms';
-    const method = editingRoom.value ? 'PUT' : 'POST';
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
+<script>
+export default {
+  data() {
+    return {
+      showCreateForm: false,
+      editingRoom: null,
+      feedback: '',
+      rooms: [],
+      isLoadingRooms: true,
+      formData: {
+        name: '',
+        number: '',
+        capacity: '',
+        available: true,
       },
-      body: JSON.stringify(payload)
-    });
-    if (response.ok) {
-      feedback.value = editingRoom.value 
-        ? 'Sala actualizada correctamente' 
-        : 'Sala creada correctamente';
-      closeForm();
-      await fetchRooms();
-      setTimeout(() => feedback.value = '', 3000);
-    } else {
-      feedback.value = 'Error al procesar la solicitud';
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    feedback.value = 'Error de conexión';
-  }
-}
-
-function formatDate(dateString) {
-  if (!dateString) return 'N/A';
-  const options = { year: 'numeric', month: 'short', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString('es-ES', options);
-}
-
-onMounted(fetchRooms);
+    };
+  },
+  computed: {
+    filteredRooms() {
+      return this.rooms;
+    },
+    availableRoomsCount() {
+      return this.rooms.filter(room => room.available).length;
+    },
+    occupiedRoomsCount() {
+      return this.rooms.filter(room => !room.available).length;
+    },
+  },
+  methods: {
+    async fetchRooms() {
+      this.isLoadingRooms = true;
+      try {
+        const response = await fetch('/api/study-rooms');
+        if (response.ok) {
+          this.rooms = await response.json();
+        } else {
+          console.error('Error fetching rooms:', response.status);
+          this.rooms = [];
+        }
+      } catch (error) {
+        console.error('Error fetching rooms:', error);
+        this.rooms = [];
+      } finally {
+        this.isLoadingRooms = false;
+      }
+    },
+    async refreshRooms() {
+      await this.fetchRooms();
+      this.feedback = 'Lista actualizada correctamente';
+      setTimeout(() => (this.feedback = ''), 3000);
+    },
+    editRoom(room) {
+      this.editingRoom = room;
+      this.formData = {
+        name: room.name,
+        number: room.number,
+        capacity: room.capacity,
+        available: room.available,
+      };
+    },
+    async deleteRoom(room) {
+      if (confirm(`¿Estás seguro de que quieres eliminar la sala "${room.name}"?`)) {
+        try {
+          const response = await fetch(`/api/study-rooms/${room.id}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          if (response.ok) {
+            this.feedback = `Sala "${room.name}" eliminada correctamente`;
+            await this.fetchRooms();
+            setTimeout(() => (this.feedback = ''), 3000);
+          } else {
+            this.feedback = 'Error al eliminar la sala';
+            setTimeout(() => (this.feedback = ''), 3000);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          this.feedback = 'Error de conexión al eliminar';
+          setTimeout(() => (this.feedback = ''), 3000);
+        }
+      }
+    },
+    closeForm() {
+      this.showCreateForm = false;
+      this.editingRoom = null;
+      this.formData = {
+        name: '',
+        number: '',
+        capacity: '',
+        available: true,
+      };
+      this.feedback = '';
+    },
+    async submitForm() {
+      this.feedback = 'Intentando crear sala...';
+      try {
+        const payload = {
+          ...this.formData,
+          number: Number(this.formData.number),
+          capacity: Number(this.formData.capacity),
+          available: this.formData.available === 'false' ? false : Boolean(this.formData.available),
+        };
+        const url = this.editingRoom
+          ? `/api/study-rooms/${this.editingRoom.id}`
+          : '/api/study-rooms';
+        const method = this.editingRoom ? 'PUT' : 'POST';
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        if (response.ok) {
+          this.feedback = this.editingRoom
+            ? 'Sala actualizada correctamente'
+            : 'Sala creada correctamente';
+          this.closeForm();
+          await this.fetchRooms();
+          setTimeout(() => (this.feedback = ''), 3000);
+        } else {
+          this.feedback = 'Error al procesar la solicitud';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        this.feedback = 'Error de conexión';
+      }
+    },
+    formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('es-ES', options);
+    },
+  },
+  mounted() {
+    this.fetchRooms();
+  },
+};
 </script> 

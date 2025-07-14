@@ -302,146 +302,130 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue';
-
-// Horas válidas para seleccionar
-const validHours = [
-  "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"
-];
-// Salas desde la base de datos Neon
-const availableRooms = ref([]);
-const isLoadingRooms = ref(true);
-const roomsError = ref('');
-
-// Función para obtener las salas de la base de datos
-async function fetchRooms() {
-  isLoadingRooms.value = true;
-  roomsError.value = '';
-  
-  try {
-    const response = await fetch('/api/study-rooms');
-    if (response.ok) {
-      availableRooms.value = await response.json();
-    } else {
-      console.error('Error fetching rooms:', response.status);
-      roomsError.value = 'Error al cargar las salas. Intenta nuevamente.';
-      availableRooms.value = [];
-    }
-  } catch (error) {
-    console.error('Error fetching rooms:', error);
-    roomsError.value = 'Error de conexión. Verifica tu internet.';
-    availableRooms.value = [];
-  } finally {
-    isLoadingRooms.value = false;
-  }
-}
-
-// Cargar las salas al montar el componente
-onMounted(() => {
-  fetchRooms();
-});
-
-// Datos del formulario
-const selectedRoom = ref(null);
-const formData = ref({
-  name: '',
-        email: '',
-  date: '',
-  time: '09:00',
-  duration: '1',
-});
-
-// Reservas del usuario (ejemplo)
-const userReservations = ref([
-  {
-    id: 1,
-    roomName: 'Sala de Estudio A101',
-    location: 'Edificio A - Piso 1',
-    date: '2024-01-15',
-    time: '14:00',
-    duration: 2,
-    status: 'active',
-    userName: 'Luis Estudiante'
-  },
-  {
-    id: 2,
-    roomName: 'Laboratorio B205',
-    location: 'Edificio B - Piso 2',
-    date: '2024-01-10',
-    time: '10:00',
-    duration: 1,
-    status: 'completed',
-    userName: 'Luis Estudiante'
-  }
-]);
-
-// Fecha de hoy para validación
-const today = computed(() => {
-  return new Date().toISOString().split('T')[0];
-});
-
-// Función para formatear fechas
-function formatDate(dateString) {
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString('es-ES', options);
-}
-
-// Función para enviar la reserva
-async function submitReservation() {
-  if (!selectedRoom.value || !formData.value.name || !formData.value.email) {
-    alert('Por favor completa todos los campos requeridos');
-    return;
-  }
-
-  try {
-    const response = await fetch('/api/reserve', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        studyRoomId: selectedRoom.value.id, // antes roomId
-        nombre: formData.value.name,        // antes name
-        email: formData.value.email,
-        fecha: formData.value.date,         // antes date
-        hora: formData.value.time,          // antes time
-        // duration y notes no se usan en backend, se pueden omitir
-      })
-    });
-
-    if (response.ok) {
-      // Agregar la nueva reserva al historial
-      userReservations.value.unshift({
-        id: Date.now(),
-        roomName: selectedRoom.value.name,
-        location: selectedRoom.value.location,
-        date: formData.value.date,
-        time: formData.value.time,
-        duration: parseInt(formData.value.duration),
-        status: 'active',
-        userName: formData.value.name
-      });
-
-      // Limpiar el formulario
-      selectedRoom.value = null;
-      formData.value = {
+<script>
+export default {
+  data() {
+    return {
+      validHours: [
+        '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'
+      ],
+      availableRooms: [],
+      isLoadingRooms: true,
+      roomsError: '',
+      selectedRoom: null,
+      formData: {
         name: '',
         email: '',
         date: '',
         time: '09:00',
         duration: '1',
-      };
-
-      alert('¡Reserva realizada con éxito!');
-    } else {
-      alert('Error al realizar la reserva. Intenta nuevamente.');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    alert('Error de conexión. Intenta nuevamente.');
-  }
-}
+      },
+      userReservations: [
+        {
+          id: 1,
+          roomName: 'Sala de Estudio A101',
+          location: 'Edificio A - Piso 1',
+          date: '2024-01-15',
+          time: '14:00',
+          duration: 2,
+          status: 'active',
+          userName: 'Luis Estudiante',
+        },
+        {
+          id: 2,
+          roomName: 'Laboratorio B205',
+          location: 'Edificio B - Piso 2',
+          date: '2024-01-10',
+          time: '10:00',
+          duration: 1,
+          status: 'completed',
+          userName: 'Luis Estudiante',
+        },
+      ],
+    };
+  },
+  computed: {
+    today() {
+      return new Date().toISOString().split('T')[0];
+    },
+  },
+  methods: {
+    async fetchRooms() {
+      this.isLoadingRooms = true;
+      this.roomsError = '';
+      try {
+        const response = await fetch('/api/study-rooms');
+        if (response.ok) {
+          this.availableRooms = await response.json();
+        } else {
+          console.error('Error fetching rooms:', response.status);
+          this.roomsError = 'Error al cargar las salas. Intenta nuevamente.';
+          this.availableRooms = [];
+        }
+      } catch (error) {
+        console.error('Error fetching rooms:', error);
+        this.roomsError = 'Error de conexión. Verifica tu internet.';
+        this.availableRooms = [];
+      } finally {
+        this.isLoadingRooms = false;
+      }
+    },
+    formatDate(dateString) {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('es-ES', options);
+    },
+    async submitReservation() {
+      if (!this.selectedRoom || !this.formData.name || !this.formData.email) {
+        alert('Por favor completa todos los campos requeridos');
+        return;
+      }
+      try {
+        const response = await fetch('/api/reserve', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            studyRoomId: this.selectedRoom.id,
+            nombre: this.formData.name,
+            email: this.formData.email,
+            fecha: this.formData.date,
+            hora: this.formData.time,
+          }),
+        });
+        if (response.ok) {
+          this.userReservations.unshift({
+            id: Date.now(),
+            roomName: this.selectedRoom.name,
+            location: this.selectedRoom.location,
+            date: this.formData.date,
+            time: this.formData.time,
+            duration: parseInt(this.formData.duration),
+            status: 'active',
+            userName: this.formData.name,
+          });
+          this.selectedRoom = null;
+          this.formData = {
+            name: '',
+            email: '',
+            date: '',
+            time: '09:00',
+            duration: '1',
+          };
+          alert('¡Reserva realizada con éxito!');
+        } else {
+          alert('Error al realizar la reserva. Intenta nuevamente.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión. Intenta nuevamente.');
+      }
+    },
+  },
+  mounted() {
+    this.fetchRooms();
+  },
+};
 </script>
 
 <style scoped>
