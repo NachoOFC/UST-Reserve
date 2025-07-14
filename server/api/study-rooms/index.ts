@@ -15,8 +15,8 @@ export default defineEventHandler(async (event) => {
       console.log('Datos recibidos en POST /api/study-rooms:', body);
       // Validar datos mínimos
       if (!body.name || !body.number || !body.capacity) {
-        console.error('Faltan datos obligatorios para crear la sala');
-        return { statusCode: 400, message: 'Faltan datos obligatorios para crear la sala' };
+        console.error('Faltan datos obligatorios para crear la sala wuaaaaa');
+        return { statusCode: 400, message: 'Faltan datos * AAAAAAAAAA' };
       }
       // Cast de tipos
       const name = String(body.name);
