@@ -16,8 +16,8 @@
               <NuxtLink to="/reserve" class="bg-white text-emerald-600 px-6 py-3 rounded-lg font-medium hover:bg-emerald-50 transition-colors">
                 Reservar Ahora
               </NuxtLink>
-              <button @click="activeView = 'rooms'" class="border border-emerald-200 text-white px-6 py-3 rounded-lg font-medium hover:bg-emerald-700 transition-colors">
-                Explorar Salas
+              <button @click="showInfoModal = true" class="bg-emerald-100 text-emerald-800 px-6 py-3 rounded-lg font-medium hover:bg-emerald-200 transition-colors">
+                Información del Sistema
               </button>
             </div>
           </div>
@@ -29,7 +29,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm text-gray-600">Salas Disponibles</p>
-                <p class="text-2xl font-bold text-gray-900">{{ rooms.length }}</p>
+                <p class="text-2xl font-bold text-gray-900">-</p>
               </div>
               <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,7 +77,12 @@
         </div>
       </div>
 
-     
+      <!-- Modal de Información del Sistema -->
+      <SystemInfoModal 
+        :show="showInfoModal" 
+        :rooms-count="rooms.length"
+        @close="showInfoModal = false"
+      />
     </main>
   </div>
 </template>
@@ -87,8 +92,7 @@ export default {
   data() {
     return {
       navItems: [
-        { id: 'dashboard', label: 'Dashboard', icon: { template: '<svg class=\'w-4 h-4\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z\'/><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width="2" d=\'M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z\'/></svg>' } },
-        { id: 'rooms', label: 'Salas', icon: { template: '<svg class=\'w-4 h-4\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4\'/></svg>' } }
+        { id: 'dashboard', label: 'Dashboard', icon: { template: '<svg class=\'w-4 h-4\' fill=\'none\' stroke=\'currentColor\' viewBox=\'0 0 24 24\'><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z\'/><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width="2" d=\'M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z\'/></svg>' } }
       ],
       activeView: 'dashboard',
       searchTerm: '',
@@ -103,6 +107,7 @@ export default {
       ],
       rooms: [],
       isLoadingRooms: true,
+      showInfoModal: false,
     };
   },
   computed: {
