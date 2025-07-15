@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <template v-if="route.path !== '/login'">
+    <template v-if="route?.path !== '/login'">
       <!-- Header con logo Santo Tomás y navegación -->
       <header class="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -192,8 +192,9 @@ const router = useRouter();
 const route = useRoute();
 
 function setUserFromStorage() {
+  if (typeof window === 'undefined') return;
   const userStr = localStorage.getItem('user');
-  if (!userStr && route.path !== '/login') {
+  if (!userStr && (route?.path || '') !== '/login') {
     router.push('/login');
     userName.value = '';
     userEmail.value = '';
@@ -218,12 +219,15 @@ function setUserFromStorage() {
 
 onMounted(() => {
   setUserFromStorage();
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', setUserFromStorage);
+  }
 });
 
-window.addEventListener('storage', setUserFromStorage);
-
 watchEffect(() => {
-  setUserFromStorage();
+  if (typeof window !== 'undefined') {
+    setUserFromStorage();
+  }
 });
 
 // Funciones del perfil
