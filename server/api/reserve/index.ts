@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     // Validar hora (solo entre 08:00 y 16:00)
     const [horaInicio, minutosInicio] = hora.split(':').map(Number);
     if (horaInicio < 8 || horaInicio >= 16) {
-      return { error: 'Solo puedes reservar entre las 08:00 y las 16:00.' };
+      return { error: 'Solo puedes reservar entre las 08:00 y las 15:30.' };
     }
 
     // Duración fija de 1 hora

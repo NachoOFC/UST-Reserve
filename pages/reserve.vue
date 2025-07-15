@@ -281,7 +281,7 @@
                 </div>
                 <div>
                   <h4 class="font-medium text-gray-900">Horarios de uso</h4>
-                  <p class="text-sm text-gray-600">Lunes a Viernes: 8:00 - 22:00</p>
+                  <p class="text-sm text-gray-600">Lunes a Viernes: 8:00 - 16:00</p>
                 </div>
               </div>
               <!-- Bloque de Cancelación gratuita eliminado -->
@@ -312,7 +312,7 @@ export default {
   data() {
     return {
       validHours: [
-        '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'
+        '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00'
       ],
       availableRooms: [],
       isLoadingRooms: true,

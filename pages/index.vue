@@ -28,8 +28,8 @@
           <div class="bg-white rounded-xl shadow-lg p-6">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600">Salas Disponibles</p>
-                <p class="text-2xl font-bold text-gray-900">-</p>
+                <p class="text-sm text-gray-600">Cantidad de Salas</p>
+                <p class="text-2xl font-bold text-gray-900">{{ totalRooms }}</p>
               </div>
               <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,8 +42,8 @@
           <div class="bg-white rounded-xl shadow-lg p-6">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600">Reservas Activas</p>
-                <p class="text-2xl font-bold text-gray-900">12</p>
+                <p class="text-sm text-gray-600">Salas Disponibles</p>
+                <p class="text-2xl font-bold text-gray-900">{{ availableRoomsCount }}</p>
               </div>
               <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,8 +56,8 @@
           <div class="bg-white rounded-xl shadow-lg p-6">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600">Ocupación Promedio</p>
-                <p class="text-2xl font-bold text-gray-900">78%</p>
+                <p class="text-sm text-gray-600">Salas Ocupadas</p>
+                <p class="text-2xl font-bold text-gray-900">{{ occupiedRoomsCount }}</p>
               </div>
               <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
                 <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,6 +119,15 @@ export default {
         room.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         String(room.number).includes(this.searchTerm)
       );
+    },
+    totalRooms() {
+      return this.rooms.length;
+    },
+    availableRoomsCount() {
+      return this.rooms.filter(room => room.available).length;
+    },
+    occupiedRoomsCount() {
+      return this.rooms.filter(room => room.available === false).length;
     },
   },
   methods: {
