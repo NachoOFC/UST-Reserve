@@ -1,5 +1,6 @@
 <template>
-  <div class="flex items-center justify-center min-h-[60vh] bg-white">
+  <div class="flex flex-col items-center justify-center min-h-[60vh] bg-white space-y-8">
+    <PanoramaViewer />
     <a
       href="https://cloud.3dvista.com/hosting/6520281/87/index.htm"
       target="_blank"
@@ -11,10 +12,8 @@
   </div>
 </template>
 
-<script>
-export default {
-  // Página minimalista: solo el botón Tour 360
-};
+<script setup>
+import PanoramaViewer from '~/components/PanoramaViewer.vue'
 </script>
 
 <style scoped>
