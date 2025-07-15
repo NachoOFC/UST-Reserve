@@ -284,19 +284,7 @@
                   <p class="text-sm text-gray-600">Lunes a Viernes: 8:00 - 22:00</p>
                 </div>
               </div>
-              
-              <div class="flex items-start space-x-3">
-                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                </div>
-                <div>
-                  <h4 class="font-medium text-gray-900">Cancelación gratuita</h4>
-                  <p class="text-sm text-gray-600">Hasta 2 horas antes</p>
-        </div>
-      </div>
-              
+              <!-- Bloque de Cancelación gratuita eliminado -->
               <div class="flex items-start space-x-3">
                 <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,7 +294,7 @@
                 </div>
                 <div>
                   <h4 class="font-medium text-gray-900">Ubicación GPS</h4>
-                  <p class="text-sm text-gray-600">Navegación precisa al aula</p>
+                  <p class="text-sm text-gray-600">Navegación precisa al aula (Muy Pronto)</p>
                 </div>
               </div>
             </div>
