@@ -72,7 +72,13 @@
         <div>
           <h2 class="text-2xl font-bold text-gray-900 mb-6">Salas Destacadas</h2>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <RoomCard v-for="room in filteredRooms" :key="room.id" :room="room" />
+            <div v-for="room in topReservedRooms.slice(0,3)" :key="room.id" class="bg-gradient-to-br from-emerald-100 to-teal-50 rounded-2xl shadow-lg border border-emerald-200 hover:shadow-2xl transition-all duration-300 p-6 flex flex-col items-center">
+              <img :src="room.thumbnail || '/santotomas1.jpg'" alt="Miniatura" class="w-full h-32 object-cover rounded-xl mb-4 shadow" />
+              <h3 class="text-xl font-bold text-emerald-800 mb-1 text-center">{{ room.name }}</h3>
+              <p class="text-gray-600 text-sm mb-2 text-center">{{ room.description || 'Sala equipada para estudio y reuniones.' }}</p>
+              <span class="inline-block bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow mb-2">{{ room.reservas }} reservas</span>
+              <NuxtLink :to="`/salas/${room.id}`" class="mt-2 px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition">Ver Detalle</NuxtLink>
+            </div>
           </div>
         </div>
       </div>
@@ -108,6 +114,7 @@ export default {
       rooms: [],
       isLoadingRooms: true,
       showInfoModal: false,
+      topReservedRooms: [],
     };
   },
   computed: {
@@ -156,15 +163,29 @@ export default {
         const res = await fetch('/api/study-rooms');
         if (res.ok) {
           this.rooms = await res.json();
+          await this.fetchTopReservedRooms();
         } else {
-          console.error('Error fetching rooms:', res.status);
           this.rooms = [];
         }
       } catch (error) {
-        console.error('Error fetching rooms:', error);
         this.rooms = [];
       } finally {
         this.isLoadingRooms = false;
+      }
+    },
+    async fetchTopReservedRooms() {
+      try {
+        const res = await fetch('/api/reserve/top');
+        if (res.ok) {
+          const top = await res.json();
+          // top: [{ studyRoomId, count }]
+          this.topReservedRooms = top.map(item => {
+            const room = this.rooms.find(r => r.id === item.studyRoomId);
+            return room ? { ...room, reservas: item.count } : null;
+          }).filter(Boolean);
+        }
+      } catch (e) {
+        this.topReservedRooms = [];
       }
     },
   },
