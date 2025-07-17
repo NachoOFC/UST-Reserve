@@ -71,16 +71,47 @@
         <!-- Salas destacadas -->
         <div>
           <h2 class="text-2xl font-bold text-gray-900 mb-6">Salas Destacadas</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div v-for="room in topReservedRooms.slice(0,3)" :key="room.id" class="bg-gradient-to-br from-emerald-100 to-teal-50 rounded-2xl shadow-lg border border-emerald-200 hover:shadow-2xl transition-all duration-300 p-6 flex flex-col items-center">
-              <img :src="room.thumbnail || '/santotomas1.jpg'" alt="Miniatura" class="w-full h-32 object-cover rounded-xl mb-4 shadow" />
+          <div v-if="isLoadingRooms">
+            <div class="flex justify-center py-12">
+              <svg class="animate-spin h-10 w-10 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+              </svg>
+            </div>
+          </div>
+          <div v-else-if="topReservedRooms.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="room in topReservedRooms.slice(0,3)" :key="room.id" class="bg-gradient-to-br from-emerald-100 to-teal-50 rounded-2xl shadow-lg border border-emerald-200 hover:shadow-2xl transition-all duration-300 p-6 flex flex-col items-center cursor-pointer group" @click="openSalaModal(room)">
+              <img :src="room.thumbnail || '/santotomas1.jpg'" alt="Miniatura" class="w-full h-32 object-cover rounded-xl mb-4 shadow group-hover:scale-105 transition-transform duration-300" />
               <h3 class="text-xl font-bold text-emerald-800 mb-1 text-center">{{ room.name }}</h3>
               <p class="text-gray-600 text-sm mb-2 text-center">{{ room.description || 'Sala equipada para estudio y reuniones.' }}</p>
-              <span class="inline-block bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow mb-2">{{ room.reservas }} reservas</span>
-              <NuxtLink :to="`/salas/${room.id}`" class="mt-2 px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition">Ver Detalle</NuxtLink>
+              <span class="inline-block bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow mb-2">{{ room.reservas || 0 }} reservas</span>
+              <span class="mt-2 px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition">Ver Detalle</span>
+            </div>
+          </div>
+          <div v-else class="text-center py-12">
+            <div class="bg-white rounded-2xl shadow-lg p-8 max-w-md mx-auto">
+              <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">No hay salas destacadas</h3>
+              <p class="text-gray-600">Las salas aparecerán aquí cuando tengan reservas.</p>
             </div>
           </div>
         </div>
+
+        <!-- Modal de sala -->
+        <transition name="fade">
+          <div v-if="salaSeleccionada" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-3xl w-full relative animate-fade-in">
+              <button @click="closeSalaModal" class="absolute top-4 right-4 text-gray-400 hover:text-emerald-600 text-3xl font-bold focus:outline-none">&times;</button>
+              <h2 class="text-3xl font-extrabold mb-2 text-emerald-700 text-center">{{ salaSeleccionada.name }}</h2>
+              <p class="mb-4 text-gray-600 text-center text-lg">{{ salaSeleccionada.description || 'Sala equipada para estudio y reuniones. Ambiente cómodo y tranquilo.' }}</p>
+              <div class="rounded-2xl overflow-hidden shadow-lg border border-gray-100">
+                <PanoramaViewer :panorama="salaSeleccionada.urlPanorama360 || defaultPanorama" />
+              </div>
+            </div>
+          </div>
+        </transition>
       </div>
 
       <!-- Modal de Información del Sistema -->
@@ -115,6 +146,8 @@ export default {
       isLoadingRooms: true,
       showInfoModal: false,
       topReservedRooms: [],
+      salaSeleccionada: null,
+      defaultPanorama: '/e271ec15-3740-4a2e-87eb-8fe9f8a3f2cd.png',
     };
   },
   computed: {
@@ -166,9 +199,11 @@ export default {
           await this.fetchTopReservedRooms();
         } else {
           this.rooms = [];
+          this.topReservedRooms = [];
         }
       } catch (error) {
         this.rooms = [];
+        this.topReservedRooms = [];
       } finally {
         this.isLoadingRooms = false;
       }
@@ -178,15 +213,22 @@ export default {
         const res = await fetch('/api/reserve/top');
         if (res.ok) {
           const top = await res.json();
-          // top: [{ studyRoomId, count }]
           this.topReservedRooms = top.map(item => {
             const room = this.rooms.find(r => r.id === item.studyRoomId);
             return room ? { ...room, reservas: item.count } : null;
           }).filter(Boolean);
+        } else {
+          this.topReservedRooms = [];
         }
       } catch (e) {
         this.topReservedRooms = [];
       }
+    },
+    openSalaModal(sala) {
+      this.salaSeleccionada = sala;
+    },
+    closeSalaModal() {
+      this.salaSeleccionada = null;
     },
   },
   mounted() {
@@ -231,10 +273,39 @@ export default {
         </div>
       `,
     },
+    PanoramaViewer: {
+      props: ['panorama'],
+      template: `
+        <div style="overflow: hidden; position: relative; width: 100%; height: 500px;">
+          <div ref="viewerContainer" style="width: 100%; height: 100%;"></div>
+        </div>
+      `,
+      mounted() {
+        // Aquí iría la lógica del visor 360
+        // Por ahora solo muestra la imagen
+        const container = this.$refs.viewerContainer;
+        if (container) {
+          container.innerHTML = `<img src="${this.panorama}" style="width: 100%; height: 100%; object-fit: cover;" />`;
+        }
+      }
+    }
   },
 };
 </script>
 
 <style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+.animate-fade-in {
+  animation: fadeInModal 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes fadeInModal {
+  0% { opacity: 0; transform: scale(0.96); }
+  100% { opacity: 1; transform: scale(1); }
+}
 /* Estilos adicionales si son necesarios */
 </style>
