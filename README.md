@@ -10,7 +10,7 @@ server/
 ├── types/            ← Tipos globales opcionales (interfaces, enums, etc)
 │   └── studyRoom.ts      ← (Ejemplo) Tipado de una sala de estudio
 └── utils/            ← Funciones útiles (formato, validaciones, etc)
-    
+    ---------------------
 
 ---
 
