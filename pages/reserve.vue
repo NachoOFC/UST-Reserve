@@ -284,7 +284,7 @@
                   <p class="text-sm text-gray-600">Lunes a Viernes: 8:00 - 16:00</p>
                 </div>
               </div>
-              <!-- Bloque de Cancelación gratuita eliminado -->
+
               <div class="flex items-start space-x-3">
                 <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
