@@ -102,11 +102,7 @@
               </div>
               <div class="flex justify-between">
                 <span class="text-gray-700">Sábados:</span>
-                <span class="font-medium">9:00 AM - 6:00 PM</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-700">Domingos:</span>
-                <span class="font-medium">10:00 AM - 4:00 PM</span>
+                <span class="font-medium">8:30 AM - 9:00 PM</span>
               </div>
             </div>
           </div>
