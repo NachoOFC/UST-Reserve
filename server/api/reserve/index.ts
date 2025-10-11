@@ -50,10 +50,27 @@ export default defineEventHandler(async (event) => {
     const horaFin = `${String(horaInicio + 1).padStart(2, '0')}:${minutosInicio.toString().padStart(2, '0')}:00`;
     const horaInicioStr = `${String(horaInicio).padStart(2, '0')}:${minutosInicio.toString().padStart(2, '0')}:00`;
 
-    // Buscar o crear usuario
+    // Buscar usuario por email
     let user = await sql`SELECT * FROM users WHERE email = ${email}`;
+    
+    // Si el usuario no existe, rechazar (solo usuarios registrados pueden reservar)
     if (user.length === 0) {
-      user = await sql`INSERT INTO users (name, email) VALUES (${nombre}, ${email}) RETURNING *`;
+      return { error: 'Debes iniciar sesión para hacer una reserva. Los invitados no pueden reservar.' };
+    }
+
+    // Si el usuario no tiene contraseña, es un invitado (creado automáticamente) -> rechazar
+    if (!user[0].password) {
+      return { error: 'Debes iniciar sesión con una cuenta registrada para hacer una reserva. Los invitados no pueden reservar.' };
+    }
+
+    // Verificar que el usuario no tenga ya una reserva para la misma fecha (solo 1 reserva por día)
+    const reservasMismaFecha = await sql`
+      SELECT * FROM reserve
+      WHERE user_id = ${user[0].id}
+        AND reservation_date = ${fecha}
+    `;
+    if (reservasMismaFecha.length > 0) {
+      return { error: 'Ya tienes una reserva para esta fecha. Solo se permite 1 reserva por día.' };
     }
 
     // Verificar disponibilidad (no debe haber traslape en ese horario)

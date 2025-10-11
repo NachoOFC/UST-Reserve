@@ -325,29 +325,9 @@ export default {
         time: '', // <-- valor inicial vacío para forzar selección
         duration: '1',
       },
-      userReservations: [
-        {
-          id: 1,
-          roomName: 'Sala de Estudio A101',
-          location: 'Edificio A - Piso 1',
-          date: '2024-01-15',
-          time: '14:00',
-          duration: 2,
-          status: 'active',
-          userName: 'Luis Estudiante',
-        },
-        {
-          id: 2,
-          roomName: 'Laboratorio B205',
-          location: 'Edificio B - Piso 2',
-          date: '2024-01-10',
-          time: '10:00',
-          duration: 1,
-          status: 'completed',
-          userName: 'Luis Estudiante',
-        },
-      ],
+      userReservations: [],
       reservedHours: [],
+      hasReservationForDate: false,
     };
   },
   computed: {
@@ -375,7 +355,10 @@ export default {
     },
   },
   watch: {
-    'formData.date': 'fetchReservedHours',
+    'formData.date': function() {
+      this.fetchReservedHours();
+      this.checkUserReservationForDate();
+    },
     selectedRoom: 'fetchReservedHours'
   },
   setup() {
@@ -417,6 +400,32 @@ export default {
         this.reservedHours = [];
       }
     },
+    async checkUserReservationForDate() {
+      this.hasReservationForDate = false;
+      if (!this.formData.date) return;
+
+      const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+      const user = userStr ? JSON.parse(userStr) : null;
+      
+      if (!user || user.anon) return;
+
+      try {
+        const response = await fetch(`/api/reserve/my?email=${encodeURIComponent(user.email)}`);
+        const data = await response.json();
+        
+        if (data.active && data.active.length > 0) {
+          // Verificar si tiene reserva para la fecha seleccionada
+          const hasReservation = data.active.some(res => res.reservation_date === this.formData.date);
+          this.hasReservationForDate = hasReservation;
+          
+          if (hasReservation) {
+            this.toast.warning(`Ya tienes una reserva para el ${this.formatDate(this.formData.date)}. Solo se permite 1 reserva por día.`);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking user reservation:', error);
+      }
+    },
     formatDate(dateString) {
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       return new Date(dateString).toLocaleDateString('es-ES', options);
@@ -427,6 +436,25 @@ export default {
       return `${hh.padStart(2, '0')}:${mm.padStart(2, '0')}`;
     },
     async submitReservation() {
+      // Verificar que el usuario esté autenticado (no sea invitado)
+      const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+      const user = userStr ? JSON.parse(userStr) : null;
+      
+      if (!user || user.anon) {
+        this.toast.error('Debes iniciar sesión para hacer una reserva. Los invitados no pueden reservar.');
+        // Redirigir al login después de 2 segundos
+        setTimeout(() => {
+          this.$router.push('/login');
+        }, 2000);
+        return;
+      }
+
+      // Verificar si ya tiene reserva para esta fecha
+      if (this.hasReservationForDate) {
+        this.toast.error('Ya tienes una reserva para esta fecha. Solo se permite 1 reserva por día.');
+        return;
+      }
+
       if (!this.selectedRoom || !this.formData.name || !this.formData.email) {
         this.toast.error('Por favor completa todos los campos requeridos');
         return;
