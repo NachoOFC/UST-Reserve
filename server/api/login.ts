@@ -10,8 +10,8 @@ export default defineEventHandler(async (event) => {
     if (!email || !password) {
       return { error: 'Faltan email o password' };
     }
-    // Buscar usuario por email
-    const users = await sql`SELECT id, name, email, password FROM users WHERE email = ${email}`;
+    // Buscar usuario por email (incluyendo role)
+    const users = await sql`SELECT id, name, email, password, role FROM users WHERE email = ${email}`;
     if (users.length === 0) {
       return { error: 'Usuario o contraseña incorrectos' };
     }
@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
     }
     // Retornar usuario sin password
     const { password: _, ...userSafe } = user;
+    console.log('✅ Login exitoso:', userSafe.name, '| Role:', userSafe.role);
     return { user: userSafe };
   } catch (err) {
     console.error('Error en /api/login:', err);

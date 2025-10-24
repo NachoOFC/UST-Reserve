@@ -45,13 +45,21 @@ const login = async () => {
     })
     const data = await res.json()
     if (data.user) {
-      // Guardar nombre y email explícitamente
-      localStorage.setItem('user', JSON.stringify({
+      // Guardar usuario con todos sus datos incluyendo role
+      const userData = {
         id: data.user.id,
         name: data.user.name,
-        email: data.user.email
-      }))
-      router.push('/')
+        email: data.user.email,
+        role: data.user.role || 'user',
+        anon: false  // Asegurar que no es anónimo
+      }
+      localStorage.setItem('user', JSON.stringify(userData))
+      console.log('✅ Usuario autenticado:', data.user.name, '| Role:', data.user.role)
+      
+      // Pequeña pausa para asegurar que localStorage está actualizado
+      setTimeout(() => {
+        router.push('/')
+      }, 100)
     } else {
       error.value = data.error || 'Error al iniciar sesión'
     }
@@ -61,7 +69,13 @@ const login = async () => {
 }
 
 const loginAnon = () => {
-  localStorage.setItem('user', JSON.stringify({ anon: true }))
+  localStorage.setItem('user', JSON.stringify({ 
+    anon: true,
+    name: 'Invitado',
+    email: null,
+    role: 'guest'
+  }))
+  console.log('👤 Acceso como invitado')
   router.push('/')
 }
 </script>

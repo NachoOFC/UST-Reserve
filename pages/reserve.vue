@@ -15,7 +15,31 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Formulario de reserva -->
         <div class="lg:col-span-2">
-          <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+          <!-- Alerta para invitados -->
+          <div v-if="user && user.anon" class="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-8 rounded-lg">
+            <div class="flex items-start">
+              <svg class="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              <div>
+                <h3 class="text-lg font-semibold text-yellow-800">Acceso como Invitado</h3>
+                <p class="text-yellow-700 mt-1">Para hacer reservas, necesitas iniciar sesión con tu cuenta institucional.</p>
+                <NuxtLink
+                  to="/login"
+                  class="inline-block mt-3 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm font-medium"
+                >
+                  Iniciar Sesión
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulario solo para usuarios autenticados -->
+          <div v-else-if="!user || user.anon" class="text-center py-12">
+            <!-- Será mostrado por la alerta arriba -->
+          </div>
+
+          <div v-else class="bg-white rounded-2xl shadow-lg p-6 mb-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Nueva Reserva</h2>
             
             <form @submit.prevent="submitReservation" class="space-y-6">
@@ -93,11 +117,14 @@
                 </div>
           </div>
 
-              <!-- Información personal -->
+              <!-- Información personal (solo lectura si está logueado) -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">Nombre completo</label>
-              <input 
+              <div v-if="user && !user.anon" class="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-900 font-medium">
+                {{ user.name }}
+              </div>
+              <input v-else
                     v-model="formData.name"
                 type="text" 
                 required
@@ -107,7 +134,10 @@
             </div>
             <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-              <input 
+              <div v-if="user && !user.anon" class="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-900 font-medium">
+                {{ user.email }}
+              </div>
+              <input v-else
                     v-model="formData.email"
                 type="email" 
                 required
@@ -311,6 +341,7 @@ import { useToast } from 'vue-toastification';
 export default {
   data() {
     return {
+      user: null,
       validHours: [
         '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00'
       ],
@@ -511,6 +542,19 @@ export default {
     
   },
   mounted() {
+    // Cargar usuario desde localStorage
+    if (typeof window !== 'undefined') {
+      const userStr = localStorage.getItem('user');
+      this.user = userStr ? JSON.parse(userStr) : null;
+      
+      // Si está logueado (no es anónimo), pre-llenar nombre y email
+      if (this.user && !this.user.anon) {
+        this.formData.name = this.user.name || '';
+        this.formData.email = this.user.email || '';
+        console.log('✅ Datos de usuario pre-llenados:', this.user.name);
+      }
+    }
+    
     this.fetchRooms();
     
     // Agregar función de prueba al window para debugging
