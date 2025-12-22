@@ -191,7 +191,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watchEffect } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
 const searchQuery = ref('');
@@ -261,6 +261,7 @@ function setUserFromStorage() {
 
 onMounted(() => {
   setUserFromStorage();
+  console.log('✅ Mounted - User:', user.value);
   if (typeof window !== 'undefined') {
     window.addEventListener('storage', setUserFromStorage);
     // También escuchar cambios en localStorage en la misma pestaña
@@ -269,9 +270,10 @@ onMounted(() => {
   }
 });
 
-watchEffect(() => {
-  setUserFromStorage();
-});
+// Vigilar cambios en el user
+watch(() => user.value, (newVal) => {
+  console.log('👁️ Watch - User cambió a:', newVal);
+}, { deep: true });
 
 // Función de búsqueda
 function handleSearch() {
