@@ -1,4 +1,4 @@
-import { defineNuxtUIConfig } from '@nuxt/ui';
+import defineNuxtUIConfig from '@nuxt/ui';
 
 export default defineNuxtUIConfig({
   theme: {
