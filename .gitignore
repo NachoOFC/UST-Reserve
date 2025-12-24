@@ -18,6 +18,9 @@ logs
 .fleet
 .idea
 
+# Generated CSS (do not commit)
+assets/css/tailwind.output.css
+
 # Local env files
 .env
 .env.*
