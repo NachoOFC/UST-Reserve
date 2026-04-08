@@ -1,3 +1,6 @@
 [build]
-  command = "npm run build"
-  publish = "dist" # cambia esto al directorio correcto
+  # Nuxt 3 (Nitro preset: netlify) genera los assets estáticos en .output/public
+  publish = ".output/public"
+
+  # Forzamos pnpm (Netlify usa Corepack). Evita que el deploy quede desincronizado.
+  command = "corepack enable && pnpm run build"

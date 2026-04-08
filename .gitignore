@@ -6,6 +6,9 @@
 .cache
 dist
 
+# Netlify build outputs
+.netlify
+
 # Node dependencies
 node_modules
 
