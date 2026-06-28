@@ -191,20 +191,29 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+
+const { user, clearUser } = useAuth();
 
 const searchQuery = ref('');
 const showNotifications = ref(false);
 const showUserMenu = ref(false);
-const user = ref(null);
 
-// Datos del usuario
-const userName = ref('');
-const userEmail = ref('');
+const userName = computed(() => {
+  if (!user.value || user.value.anon) return 'ESTUDIANTE';
+  return user.value.name || 'Usuario';
+});
+
+const userEmail = computed(() => {
+  if (!user.value || user.value.anon) return '';
+  return user.value.email || '';
+});
+
 const userInitials = computed(() => {
-  if (!userName.value) return 'E';
-  return userName.value
+  const name = userName.value;
+  if (!name) return 'E';
+  return name
     .split(' ')
     .filter(Boolean)
     .map(n => n[0])
@@ -215,104 +224,48 @@ const userInitials = computed(() => {
 // Notificaciones (Sistema pendiente de implementar)
 const notifications = ref([
   // TODO: Implementar sistema de notificaciones real
-  // - Notificaciones de confirmación de reserva
-  // - Recordatorios de reservas próximas
-  // - Alertas de mantenimiento de salas
-  // - Cancelaciones y cambios
 ]);
 
 const router = useRouter();
 const route = useRoute();
 
-function setUserFromStorage() {
-  if (typeof window === 'undefined') return;
-  const userStr = localStorage.getItem('user');
-  
-  if (!userStr) {
-    if ((route?.path || '') !== '/login') {
-      router.push('/login');
-    }
-    userName.value = 'ESTUDIANTE';
-    userEmail.value = '';
-    user.value = null;
-    return;
+// Redirigir al login si no hay usuario
+watch(() => user.value, (newUser) => {
+  if (!newUser && route?.path !== '/login') {
+    router.push('/login');
   }
-  
-  try {
-    const parsedUser = JSON.parse(userStr);
-    user.value = parsedUser;
-    
-    if (parsedUser.anon) {
-      userName.value = 'ESTUDIANTE';
-      userEmail.value = '';
-      console.log('👤 Usuario invitado');
-    } else {
-      userName.value = parsedUser.name || 'Usuario';
-      userEmail.value = parsedUser.email || '';
-      console.log('✅ Usuario logueado:', parsedUser.name, '| Role:', parsedUser.role);
-    }
-  } catch (e) {
-    console.error('Error parseando usuario:', e);
-    userName.value = 'ESTUDIANTE';
-    userEmail.value = '';
-    user.value = null;
-  }
-}
+}, { immediate: true });
 
-onMounted(() => {
-  setUserFromStorage();
-  console.log('✅ Mounted - User:', user.value);
-  if (typeof window !== 'undefined') {
-    window.addEventListener('storage', setUserFromStorage);
-    // También escuchar cambios en localStorage en la misma pestaña
-    const handleStorageChange = () => setUserFromStorage();
-    window.addEventListener('focus', handleStorageChange);
-  }
-});
-
-// Vigilar cambios en el user
-watch(() => user.value, (newVal) => {
-  console.log('👁️ Watch - User cambió a:', newVal);
-}, { deep: true });
-
-// Función de búsqueda
 function handleSearch() {
   if (searchQuery.value.trim()) {
     router.push(`/salas?q=${encodeURIComponent(searchQuery.value)}`);
   }
 }
 
-// Funciones del perfil
 function goToProfile() {
   showUserMenu.value = false;
-  // Aquí puedes agregar navegación al perfil
   console.log('Ir al perfil');
 }
 
 function goToReservations() {
   showUserMenu.value = false;
-  // Aquí puedes agregar navegación a reservas
   console.log('Ir a reservas');
 }
 
 function goToSettings() {
   showUserMenu.value = false;
-  // Aquí puedes agregar navegación a configuración
   console.log('Ir a configuración');
 }
 
 function logout() {
   showUserMenu.value = false;
-  localStorage.removeItem('user');
-  setUserFromStorage();
+  clearUser();
   router.push('/login');
 }
 
-// Funciones de notificaciones
 function handleNotificationClick(notification) {
   showNotifications.value = false;
   console.log('Notificación clickeada:', notification);
-  // Aquí puedes agregar lógica específica para cada tipo de notificación
 }
 </script>
 

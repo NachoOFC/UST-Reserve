@@ -341,7 +341,6 @@ import { useToast } from 'vue-toastification';
 export default {
   data() {
     return {
-      user: null,
       validHours: [
         '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00'
       ],
@@ -394,7 +393,8 @@ export default {
   },
   setup() {
     const toast = useToast();
-    return { toast };
+    const { user } = useAuth();
+    return { toast, user };
   },
   methods: {
     async fetchRooms() {
@@ -435,13 +435,10 @@ export default {
       this.hasReservationForDate = false;
       if (!this.formData.date) return;
 
-      const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-      const user = userStr ? JSON.parse(userStr) : null;
-      
-      if (!user || user.anon) return;
+      if (!this.user || this.user.anon) return;
 
       try {
-        const response = await fetch(`/api/reserve/my?email=${encodeURIComponent(user.email)}`);
+        const response = await fetch(`/api/reserve/my?email=${encodeURIComponent(this.user.email)}`);
         const data = await response.json();
         
         if (data.active && data.active.length > 0) {
@@ -467,11 +464,7 @@ export default {
       return `${hh.padStart(2, '0')}:${mm.padStart(2, '0')}`;
     },
     async submitReservation() {
-      // Verificar que el usuario esté autenticado (no sea invitado)
-      const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-      const user = userStr ? JSON.parse(userStr) : null;
-      
-      if (!user || user.anon) {
+      if (!this.user || this.user.anon) {
         this.toast.error('Debes iniciar sesión para hacer una reserva. Los invitados no pueden reservar.');
         // Redirigir al login después de 2 segundos
         setTimeout(() => {
@@ -542,26 +535,12 @@ export default {
     
   },
   mounted() {
-    // Cargar usuario desde localStorage
-    if (typeof window !== 'undefined') {
-      const userStr = localStorage.getItem('user');
-      this.user = userStr ? JSON.parse(userStr) : null;
-      
-      // Si está logueado (no es anónimo), pre-llenar nombre y email
-      if (this.user && !this.user.anon) {
-        this.formData.name = this.user.name || '';
-        this.formData.email = this.user.email || '';
-        console.log('✅ Datos de usuario pre-llenados:', this.user.name);
-      }
+    if (this.user && !this.user.anon) {
+      this.formData.name = this.user.name || '';
+      this.formData.email = this.user.email || '';
     }
-    
+
     this.fetchRooms();
-    
-    // Agregar función de prueba al window para debugging
-    if (typeof window !== 'undefined') {
-      window.testReservation = this.testReservation;
-      console.log('Función de prueba disponible como window.testReservation()');
-    }
   },
 };
 </script>

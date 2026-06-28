@@ -211,7 +211,6 @@ import { useToast } from 'vue-toastification';
 export default {
   data() {
     return {
-      user: null,
       isLoading: true,
       activeReservations: [],
       pastReservations: [],
@@ -222,7 +221,8 @@ export default {
   },
   setup() {
     const toast = useToast();
-    return { toast };
+    const { user } = useAuth();
+    return { toast, user };
   },
   methods: {
     async loadReservations() {
@@ -312,17 +312,8 @@ export default {
     },
   },
   mounted() {
-    // Cargar usuario desde localStorage
-    if (typeof window !== 'undefined') {
-      const userStr = localStorage.getItem('user');
-      this.user = userStr ? JSON.parse(userStr) : null;
-      
-      // Solo cargar reservas si hay usuario autenticado
-      if (this.user && !this.user.anon) {
-        this.loadReservations();
-      } else {
-        this.isLoading = false;
-      }
+    if (this.user && !this.user.anon) {
+      this.loadReservations();
     } else {
       this.isLoading = false;
     }

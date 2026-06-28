@@ -35,6 +35,8 @@ const password = ref('')
 const error = ref('')
 const router = useRouter()
 
+const { setUser } = useAuth()
+
 const login = async () => {
   error.value = ''
   try {
@@ -45,21 +47,14 @@ const login = async () => {
     })
     const data = await res.json()
     if (data.user) {
-      // Guardar usuario con todos sus datos incluyendo role
-      const userData = {
+      setUser({
         id: data.user.id,
         name: data.user.name,
         email: data.user.email,
         role: data.user.role || 'user',
-        anon: false  // Asegurar que no es anónimo
-      }
-      localStorage.setItem('user', JSON.stringify(userData))
-      console.log('✅ Usuario autenticado:', data.user.name, '| Role:', data.user.role)
-      
-      // Pequeña pausa para asegurar que localStorage está actualizado
-      setTimeout(() => {
-        router.push('/')
-      }, 100)
+        anon: false
+      })
+      router.push('/')
     } else {
       error.value = data.error || 'Error al iniciar sesión'
     }
@@ -69,13 +64,12 @@ const login = async () => {
 }
 
 const loginAnon = () => {
-  localStorage.setItem('user', JSON.stringify({ 
+  setUser({
     anon: true,
     name: 'Invitado',
     email: null,
     role: 'guest'
-  }))
-  console.log('👤 Acceso como invitado')
+  })
   router.push('/')
 }
 </script>

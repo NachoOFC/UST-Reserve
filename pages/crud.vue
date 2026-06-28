@@ -259,7 +259,8 @@ import { useRouter } from 'vue-router';
 export default {
   setup() {
     const router = useRouter();
-    return { router };
+    const { user } = useAuth();
+    return { router, user };
   },
   data() {
     return {
@@ -268,7 +269,6 @@ export default {
       feedback: '',
       rooms: [],
       isLoadingRooms: true,
-      user: null,
       formData: {
         name: '',
         number: '',
@@ -400,22 +400,15 @@ export default {
     },
   },
   mounted() {
-    // Cargar usuario desde localStorage
-    if (typeof window !== 'undefined') {
-      const userStr = localStorage.getItem('user');
-      this.user = userStr ? JSON.parse(userStr) : null;
-      
-      // Verificar si es admin
-      if (!this.user || this.user.anon || this.user.role !== 'admin') {
-        console.warn('❌ Acceso denegado: No eres administrador');
-        this.feedback = 'Acceso denegado. Solo administradores pueden acceder.';
-        setTimeout(() => {
-          this.$router.push('/');
-        }, 2000);
-        return;
-      }
+    if (!this.user || this.user.anon || this.user.role !== 'admin') {
+      console.warn('❌ Acceso denegado: No eres administrador');
+      this.feedback = 'Acceso denegado. Solo administradores pueden acceder.';
+      setTimeout(() => {
+        this.$router.push('/');
+      }, 2000);
+      return;
     }
-    
+
     console.log('✅ Acceso CRUD permitido para:', this.user.name);
     this.fetchRooms();
   },
