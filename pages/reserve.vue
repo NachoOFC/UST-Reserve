@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- El header se elimina, solo queda el contenido principal -->
+
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Hero section para reservas -->
       <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-8 text-white mb-8">
@@ -352,7 +352,7 @@ export default {
         name: '',
         email: '',
         date: '',
-        time: '', // <-- valor inicial vacío para forzar selección
+        time: '',
         duration: '1',
       },
       userReservations: [],
@@ -405,12 +405,10 @@ export default {
         if (response.ok) {
           this.availableRooms = await response.json();
         } else {
-          console.error('Error fetching rooms:', response.status);
-          this.roomsError = 'Error al cargar las salas. Intenta nuevamente.';
+            this.roomsError = 'Error al cargar las salas. Intenta nuevamente.';
           this.availableRooms = [];
         }
       } catch (error) {
-        console.error('Error fetching rooms:', error);
         this.roomsError = 'Error de conexión. Verifica tu internet.';
         this.availableRooms = [];
       } finally {
@@ -425,7 +423,6 @@ export default {
         if (response.ok) {
           const data = await response.json();
           this.reservedHours = data.reservedHours || [];
-          console.log('Horas reservadas:', this.reservedHours);
         }
       } catch (e) {
         this.reservedHours = [];
@@ -451,7 +448,6 @@ export default {
           }
         }
       } catch (error) {
-        console.error('Error checking user reservation:', error);
       }
     },
     formatDate(dateString) {
@@ -525,7 +521,6 @@ export default {
           this.toast.error('Error al realizar la reserva. Intenta nuevamente.');
         }
       } catch (error) {
-        console.error('Error:', error);
         this.toast.error('Error de conexión. Intenta nuevamente.');
       }
     },

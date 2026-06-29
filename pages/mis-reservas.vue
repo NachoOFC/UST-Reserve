@@ -233,7 +233,6 @@ export default {
           return;
         }
 
-        console.log('🔍 Cargando reservas para:', this.user.email);
         const response = await fetch(`/api/reserve/my?email=${encodeURIComponent(this.user.email)}`);
         
         if (!response.ok) {
@@ -241,23 +240,16 @@ export default {
         }
         
         const data = await response.json();
-        console.log('📦 Datos recibidos:', data);
 
         if (data.error) {
-          console.error('❌ Error del API:', data.error);
           this.toast.error(data.error);
           this.activeReservations = [];
           this.pastReservations = [];
         } else {
           this.activeReservations = data.active || [];
           this.pastReservations = data.past || [];
-          console.log('✅ Reservas cargadas:', {
-            activas: this.activeReservations.length,
-            pasadas: this.pastReservations.length
-          });
         }
       } catch (error) {
-        console.error('💥 Error loading reservations:', error);
         this.toast.error('Error al obtener reservas');
         this.activeReservations = [];
         this.pastReservations = [];
@@ -296,7 +288,6 @@ export default {
           this.toast.error(result.error || 'Error al cancelar reserva');
         }
       } catch (error) {
-        console.error('Error canceling reservation:', error);
         this.toast.error('Error de conexión');
       } finally {
         this.isCanceling = false;

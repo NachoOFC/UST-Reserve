@@ -221,10 +221,7 @@ const userInitials = computed(() => {
     .toUpperCase() || 'E';
 });
 
-// Notificaciones (Sistema pendiente de implementar)
-const notifications = ref([
-  // TODO: Implementar sistema de notificaciones real
-]);
+const notifications = ref([]);
 
 const router = useRouter();
 const route = useRoute();
@@ -244,17 +241,14 @@ function handleSearch() {
 
 function goToProfile() {
   showUserMenu.value = false;
-  console.log('Ir al perfil');
 }
 
 function goToReservations() {
   showUserMenu.value = false;
-  console.log('Ir a reservas');
 }
 
 function goToSettings() {
   showUserMenu.value = false;
-  console.log('Ir a configuración');
 }
 
 function logout() {
@@ -265,7 +259,6 @@ function logout() {
 
 function handleNotificationClick(notification) {
   showNotifications.value = false;
-  console.log('Notificación clickeada:', notification);
 }
 </script>
 

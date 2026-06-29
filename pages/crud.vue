@@ -299,11 +299,9 @@ export default {
         if (response.ok) {
           this.rooms = await response.json();
         } else {
-          console.error('Error fetching rooms:', response.status);
-          this.rooms = [];
+            this.rooms = [];
         }
       } catch (error) {
-        console.error('Error fetching rooms:', error);
         this.rooms = [];
       } finally {
         this.isLoadingRooms = false;
@@ -341,7 +339,6 @@ export default {
             setTimeout(() => (this.feedback = ''), 3000);
           }
         } catch (error) {
-          console.error('Error:', error);
           this.feedback = 'Error de conexión al eliminar';
           setTimeout(() => (this.feedback = ''), 3000);
         }
@@ -389,7 +386,6 @@ export default {
           this.feedback = 'Error al procesar la solicitud';
         }
       } catch (error) {
-        console.error('Error:', error);
         this.feedback = 'Error de conexión';
       }
     },
@@ -401,7 +397,6 @@ export default {
   },
   mounted() {
     if (!this.user || this.user.anon || this.user.role !== 'admin') {
-      console.warn('❌ Acceso denegado: No eres administrador');
       this.feedback = 'Acceso denegado. Solo administradores pueden acceder.';
       setTimeout(() => {
         this.$router.push('/');
@@ -409,7 +404,6 @@ export default {
       return;
     }
 
-    console.log('✅ Acceso CRUD permitido para:', this.user.name);
     this.fetchRooms();
   },
 };
