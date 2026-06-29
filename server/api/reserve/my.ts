@@ -6,11 +6,7 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     const email = query.email as string;
     
-    console.log('📧 Email recibido:', email);
-    console.log('🔍 Query completo:', query);
-    
     if (!email || email === 'undefined' || email === 'null') {
-      console.error('❌ Email no proporcionado o inválido:', email);
       return { 
         error: 'Email es requerido para obtener reservas',
         reservations: [],
@@ -21,10 +17,8 @@ export default defineEventHandler(async (event) => {
 
     // Buscar usuario por email
     const users = await sql`SELECT id, name, email FROM users WHERE email = ${email}`;
-    console.log('👤 Usuarios encontrados:', users.length);
     
     if (users.length === 0) {
-      console.log('⚠️ Usuario no encontrado para email:', email);
       return { 
         reservations: [],
         active: [],
@@ -33,7 +27,6 @@ export default defineEventHandler(async (event) => {
     }
 
     const userId = users[0].id;
-    console.log('🆔 User ID:', userId, '| Nombre:', users[0].name);
 
     // Obtener todas las reservas del usuario (futuras y pasadas)
     const reservations = await sql`
@@ -53,11 +46,7 @@ export default defineEventHandler(async (event) => {
       ORDER BY r.reservation_date DESC, r.start_time DESC
     `;
     
-    console.log('📋 Reservas encontradas en BD:', reservations.length);
-
-    // Si no hay reservas, retornar arrays vacíos (esto es NORMAL, no es un error)
     if (reservations.length === 0) {
-      console.log('✅ Usuario sin reservas (esto es normal)');
       return {
         reservations: [],
         active: [],
@@ -81,17 +70,12 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    console.log('✅ Clasificación:', { activas: active.length, pasadas: past.length });
-
     return { 
       reservations: [...active, ...past],
       active,
       past 
     };
   } catch (err: any) {
-    console.error('💥 Error en /api/reserve/my:', err);
-    console.error('💥 Stack trace:', err.stack);
-    console.error('💥 Mensaje:', err.message);
     return { 
       error: 'Error al obtener reservas',
       reservations: [],

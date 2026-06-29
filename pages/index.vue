@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <!-- Elimino el header duplicado, solo queda el contenido principal -->
+
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Dashboard -->
       <div v-if="activeView === 'dashboard'" class="space-y-8">
@@ -173,23 +173,18 @@ export default {
   methods: {
     goToProfile() {
       this.showUserMenu = false;
-      console.log('Ir al perfil');
     },
     goToReservations() {
       this.showUserMenu = false;
-      console.log('Ir a reservas');
     },
     goToSettings() {
       this.showUserMenu = false;
-      console.log('Ir a configuración');
     },
     logout() {
       this.showUserMenu = false;
-      console.log('Cerrar sesión');
     },
     handleNotificationClick(notification) {
       this.showNotifications = false;
-      console.log('Notificación clickeada:', notification);
     },
     async fetchRooms() {
       try {
@@ -281,8 +276,6 @@ export default {
         </div>
       `,
       mounted() {
-        // Aquí iría la lógica del visor 360
-        // Por ahora solo muestra la imagen
         const container = this.$refs.viewerContainer;
         if (container) {
           container.innerHTML = `<img src="${this.panorama}" style="width: 100%; height: 100%; object-fit: cover;" />`;
@@ -307,5 +300,4 @@ export default {
   0% { opacity: 0; transform: scale(0.96); }
   100% { opacity: 1; transform: scale(1); }
 }
-/* Estilos adicionales si son necesarios */
 </style>

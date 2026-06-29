@@ -12,11 +12,8 @@ export default defineEventHandler(async (event) => {
   if (event.req.method === 'POST') {
     try {
       const body = await readBody(event);
-      console.log('Datos recibidos en POST /api/study-rooms:', body);
-      // Validar datos mínimos
       if (!body.name || !body.number || !body.capacity) {
-        console.error('Faltan datos obligatorios para crear la sala wuaaaaa');
-        return { statusCode: 400, message: 'Faltan datos * AAAAAAAAAA' };
+        return { statusCode: 400, message: 'Faltan datos obligatorios' };
       }
       // Cast de tipos
       const name = String(body.name);
@@ -29,7 +26,6 @@ export default defineEventHandler(async (event) => {
         capacity, 
         available
       );
-      console.log('Resultado de createStudyRoom:', result);
       return result;
     } catch (error) {
       console.error('Error en POST /api/study-rooms:', error);
