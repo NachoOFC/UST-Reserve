@@ -216,15 +216,29 @@
                 >
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Edificio</label>
                 <select 
-                  v-model="formData.available"
+                  v-model="formData.building_id"
+                  required
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 >
-                  <option :value="true">Disponible</option>
-                  <option :value="false">Ocupada</option>
+                  <option value="" disabled>Selecciona un edificio</option>
+                  <option v-for="building in buildings" :key="building.id" :value="building.id">
+                    {{ building.name }}
+                  </option>
                 </select>
               </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+              <select 
+                v-model="formData.available"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              >
+                <option :value="true">Disponible</option>
+                <option :value="false">Ocupada</option>
+              </select>
             </div>
 
             <div v-if="feedback" class="p-3 rounded-lg text-sm" :class="feedback.includes('éxito') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'">
@@ -268,12 +282,14 @@ export default {
       editingRoom: null,
       feedback: '',
       rooms: [],
+      buildings: [],
       isLoadingRooms: true,
       formData: {
         name: '',
         number: '',
         capacity: '',
         available: true,
+        building_id: '',
       },
     };
   },
@@ -312,6 +328,18 @@ export default {
       this.feedback = 'Lista actualizada correctamente';
       setTimeout(() => (this.feedback = ''), 3000);
     },
+    async fetchBuildings() {
+      try {
+        const response = await fetch('/api/buildings');
+        if (response.ok) {
+          this.buildings = await response.json();
+        } else {
+          this.buildings = [];
+        }
+      } catch (error) {
+        this.buildings = [];
+      }
+    },
     editRoom(room) {
       this.editingRoom = room;
       this.formData = {
@@ -319,6 +347,7 @@ export default {
         number: room.number,
         capacity: room.capacity,
         available: room.available,
+        building_id: room.building_id ?? '',
       };
     },
     async deleteRoom(room) {
@@ -352,16 +381,22 @@ export default {
         number: '',
         capacity: '',
         available: true,
+        building_id: '',
       };
       this.feedback = '';
     },
     async submitForm() {
+      if (!this.formData.building_id) {
+        this.feedback = 'Debes seleccionar un edificio';
+        return;
+      }
       this.feedback = 'Intentando crear sala...';
       try {
         const payload = {
           ...this.formData,
           number: Number(this.formData.number),
           capacity: Number(this.formData.capacity),
+          building_id: Number(this.formData.building_id),
           available: this.formData.available === 'false' ? false : Boolean(this.formData.available),
         };
         const url = this.editingRoom
@@ -404,6 +439,7 @@ export default {
       return;
     }
 
+    this.fetchBuildings();
     this.fetchRooms();
   },
 };

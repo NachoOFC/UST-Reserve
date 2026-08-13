@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   if (event.req.method === 'POST') {
     try {
       const body = await readBody(event);
-      if (!body.name || !body.number || !body.capacity) {
+      if (!body.name || !body.number || !body.capacity || !body.building_id) {
         return { statusCode: 400, message: 'Faltan datos obligatorios' };
       }
       // Cast de tipos
@@ -20,11 +20,13 @@ export default defineEventHandler(async (event) => {
       const number = Number(body.number);
       const capacity = Number(body.capacity);
       const available = body.available === 'false' ? false : Boolean(body.available);
+      const buildingId = Number(body.building_id);
       const result = await createStudyRoom(
         name, 
         number, 
         capacity, 
-        available
+        available,
+        buildingId
       );
       return result;
     } catch (error) {

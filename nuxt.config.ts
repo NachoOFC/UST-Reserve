@@ -36,7 +36,6 @@ export default defineNuxtConfig({
   
   // Experimental features to fix initialization issues
   experimental: {
-    inlineSSRStyles: false,
     renderJsonPayloads: false
   },
   
