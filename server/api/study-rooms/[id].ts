@@ -21,8 +21,7 @@ export default defineEventHandler(async (event) => {
       body.number, 
       body.capacity, 
       body.available, 
-      body.building_id, 
-      body.description
+      body.building_id
     );
   }
 

@@ -43,11 +43,11 @@ export async function createStudyRoom(name: string, number: number, capacity: nu
 }
 
 // Actualizar una sala
-export async function updateStudyRoom(id: number, name: string, number: number, capacity: number, available: boolean, buildingId: number, description?: string) {
+export async function updateStudyRoom(id: number, name: string, number: number, capacity: number, available: boolean, buildingId: number) {
   try {
     const [room] = await sql`
       UPDATE study_rooms
-      SET name = ${name}, number = ${number}, capacity = ${capacity}, available = ${available}, building_id = ${buildingId}, description = ${description}
+      SET name = ${name}, number = ${number}, capacity = ${capacity}, available = ${available}, building_id = ${buildingId}
       WHERE id = ${id}
       RETURNING *`;
     return room;
