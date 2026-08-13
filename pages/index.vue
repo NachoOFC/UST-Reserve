@@ -68,6 +68,26 @@
           </div>
         </div>
 
+        <!-- Ocupación del día -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h2 class="text-lg font-bold text-gray-900">Ocupación del Día</h2>
+              <p class="text-sm text-gray-500">{{ occupiedRoomsCount }} de {{ totalRooms }} salas ocupadas ahora</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-sm font-semibold"
+              :class="occupancyPercent >= 75 ? 'bg-red-100 text-red-700' : occupancyPercent >= 40 ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'">
+              {{ occupancyPercent }}% ocupado
+            </span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+            <div class="h-4 rounded-full transition-all duration-700"
+              :class="occupancyPercent >= 75 ? 'bg-red-500' : occupancyPercent >= 40 ? 'bg-yellow-500' : 'bg-emerald-500'"
+              :style="{ width: occupancyPercent + '%' }">
+            </div>
+          </div>
+        </div>
+
         <!-- Salas destacadas -->
         <div>
           <h2 class="text-2xl font-bold text-gray-900 mb-6">Salas Destacadas</h2>
@@ -168,6 +188,10 @@ export default {
     },
     occupiedRoomsCount() {
       return this.rooms.filter(room => room.available === false).length;
+    },
+    occupancyPercent() {
+      if (!this.totalRooms) return 0;
+      return Math.round((this.occupiedRoomsCount / this.totalRooms) * 100);
     },
   },
   methods: {

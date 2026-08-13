@@ -5,19 +5,16 @@
       <header class="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between h-20">
-            <!-- Logo y título -->
-            <NuxtLink to="/" class="flex items-center space-x-3">
+            <!-- Logo -->
+            <NuxtLink to="/">
               <img src="/Santotomas.png" alt="Santo Tomás" class="h-12 w-auto">
-              <div>
-                <h1 class="text-xl font-bold text-gray-900">TomasinoSpace</h1>
-                <p class="text-xs text-gray-600">Sistema de Reservas</p>
-              </div>
             </NuxtLink>
 
             <!-- Navegación principal -->
             <nav class="hidden lg:flex items-center space-x-2 ml-8">
               <NuxtLink
                 to="/"
+                exact-active-class="bg-emerald-50 text-emerald-700"
                 class="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg transition-colors text-xs font-medium text-gray-600 hover:bg-gray-100"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
@@ -25,6 +22,7 @@
               </NuxtLink>
               <NuxtLink
                 to="/salas"
+                active-class="bg-emerald-50 text-emerald-700"
                 class="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg transition-colors text-xs font-medium text-gray-600 hover:bg-gray-100"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
@@ -32,6 +30,7 @@
               </NuxtLink>
               <NuxtLink
                 to="/mis-reservas"
+                active-class="bg-emerald-50 text-emerald-700"
                 class="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg transition-colors text-xs font-medium text-gray-600 hover:bg-gray-100"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
@@ -40,6 +39,7 @@
               <NuxtLink
                 v-if="user && user.role === 'admin'"
                 to="/crud"
+                exact-active-class="bg-emerald-600 text-white"
                 class="flex items-center space-x-2 px-2.5 py-1.5 mr-3 rounded-lg transition-colors text-xs font-medium bg-emerald-100 text-emerald-700 border border-emerald-300 hover:bg-emerald-200"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
