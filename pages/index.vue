@@ -138,6 +138,10 @@
       <SystemInfoModal 
         :show="showInfoModal" 
         :rooms-count="rooms.length"
+        :available-rooms-count="availableRoomsCount"
+        :occupied-rooms-count="occupiedRoomsCount"
+        :occupancy-percent="occupancyPercent"
+        :top-reserved-count="topReservedRooms.length"
         @close="showInfoModal = false"
       />
     </main>

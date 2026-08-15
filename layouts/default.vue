@@ -241,14 +241,17 @@ function handleSearch() {
 
 function goToProfile() {
   showUserMenu.value = false;
+  router.push('/perfil');
 }
 
 function goToReservations() {
   showUserMenu.value = false;
+  router.push('/mis-reservas');
 }
 
 function goToSettings() {
   showUserMenu.value = false;
+  router.push('/configuracion');
 }
 
 function logout() {

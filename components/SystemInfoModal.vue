@@ -15,94 +15,74 @@
         </div>
         
         <div class="space-y-6">
-          <!-- Estado del Sistema -->
-          <div class="bg-emerald-50 rounded-xl p-4">
-            <h3 class="text-lg font-semibold text-emerald-800 mb-3">Estado del Sistema</h3>
-            <div class="grid grid-cols-2 gap-4 text-sm">
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                <span class="text-gray-700">Sistema Operativo</span>
-              </div>
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                <span class="text-gray-700">Base de Datos Conectada</span>
-              </div>
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                <span class="text-gray-700">API Funcionando</span>
-              </div>
-              <div class="flex items-center">
-                <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                <span class="text-gray-700">Reservas Activas</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Estadísticas Rápidas -->
+        
+          <!-- Estadísticas en Tiempo Real -->
           <div class="bg-blue-50 rounded-xl p-4">
-            <h3 class="text-lg font-semibold text-blue-800 mb-3">Estadísticas Rápidas</h3>
-            <div class="grid grid-cols-2 gap-4">
+            <h3 class="text-lg font-semibold text-blue-800 mb-3">Estadísticas en Tiempo Real</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div class="text-center">
                 <p class="text-2xl font-bold text-blue-600">{{ roomsCount }}</p>
-                <p class="text-sm text-gray-600">Salas Registradas</p>
+                <p class="text-sm text-gray-600">Salas registradas</p>
               </div>
               <div class="text-center">
-                <p class="text-2xl font-bold text-blue-600">12</p>
-                <p class="text-sm text-gray-600">Reservas Hoy</p>
+                <p class="text-2xl font-bold text-green-600">{{ availableRoomsCount }}</p>
+                <p class="text-sm text-gray-600">Disponibles ahora</p>
               </div>
               <div class="text-center">
-                <p class="text-2xl font-bold text-blue-600">78%</p>
-                <p class="text-sm text-gray-600">Ocupación Promedio</p>
+                <p class="text-2xl font-bold text-yellow-600">{{ occupiedRoomsCount }}</p>
+                <p class="text-sm text-gray-600">Ocupadas ahora</p>
               </div>
               <div class="text-center">
-                <p class="text-2xl font-bold text-blue-600">24/7</p>
-                <p class="text-sm text-gray-600">Disponibilidad</p>
+                <p class="text-2xl font-bold text-blue-600">{{ occupancyPercent }}%</p>
+                <p class="text-sm text-gray-600">Ocupación actual</p>
               </div>
             </div>
+            <p v-if="topReservedCount > 0" class="mt-3 text-sm text-gray-600 text-center">
+              {{ topReservedCount }} salas con mayor cantidad de reservas en el historial
+            </p>
           </div>
 
           <!-- Funcionalidades Disponibles -->
           <div class="bg-purple-50 rounded-xl p-4">
-            <h3 class="text-lg font-semibold text-purple-800 mb-3">Funcionalidades Disponibles</h3>
+            <h3 class="text-lg font-semibold text-purple-800 mb-3">Qué hay disponible</h3>
             <div class="space-y-2">
-              <div class="flex items-center">
-                <svg class="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div v-for="feature in availableFeatures" :key="feature" class="flex items-center">
+                <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
-                <span class="text-gray-700">Reserva de salas en tiempo real</span>
-              </div>
-              <div class="flex items-center">
-                <svg class="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                <span class="text-gray-700">Tour 360° de las instalaciones</span>
-              </div>
-              <div class="flex items-center">
-                <svg class="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                <span class="text-gray-700">Sistema de notificaciones</span>
-              </div>
-              <div class="flex items-center">
-                <svg class="w-5 h-5 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                <span class="text-gray-700">Gestión administrativa completa</span>
+                <span class="text-gray-700">{{ feature }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Horarios de Atención -->
+          <!-- Funcionalidades Pendientes -->
+          <div class="bg-red-50 rounded-xl p-4">
+            <h3 class="text-lg font-semibold text-red-800 mb-3">Qué está pendiente</h3>
+            <div class="space-y-2">
+              <div v-for="feature in pendingFeatures" :key="feature" class="flex items-center">
+                <svg class="w-5 h-5 text-red-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                <span class="text-gray-700">{{ feature }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Horarios de Reserva -->
           <div class="bg-orange-50 rounded-xl p-4">
-            <h3 class="text-lg font-semibold text-orange-800 mb-3">Horarios de Atención</h3>
+            <h3 class="text-lg font-semibold text-orange-800 mb-3">Horarios de Reserva</h3>
             <div class="space-y-2 text-sm">
               <div class="flex justify-between">
-                <span class="text-gray-700">Lunes a Viernes:</span>
-                <span class="font-medium">8:00 AM - 10:00 PM</span>
+                <span class="text-gray-700">Lunes a Domingo:</span>
+                <span class="font-medium">08:00 - 16:00</span>
               </div>
               <div class="flex justify-between">
-                <span class="text-gray-700">Sábados:</span>
-                <span class="font-medium">8:30 AM - 9:00 PM</span>
+                <span class="text-gray-700">Duración por reserva:</span>
+                <span class="font-medium">1 hora</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-700">Límite por usuario:</span>
+                <span class="font-medium">1 reserva por día</span>
               </div>
             </div>
           </div>
@@ -139,7 +119,44 @@ export default {
     roomsCount: {
       type: Number,
       default: 0
+    },
+    availableRoomsCount: {
+      type: Number,
+      default: 0
+    },
+    occupiedRoomsCount: {
+      type: Number,
+      default: 0
+    },
+    occupancyPercent: {
+      type: Number,
+      default: 0
+    },
+    topReservedCount: {
+      type: Number,
+      default: 0
     }
+  },
+  data() {
+    return {
+      availableFeatures: [
+        'Reserva de salas en tiempo real (1 hora por reserva)',
+        'Búsqueda de salas por nombre y número',
+        'Vista 360° de cada sala',
+        'Mis reservas con cancelación',
+        'Historial de reservas completadas',
+        'Login institucional y acceso como invitado',
+        'Gestión administrativa de salas (CRUD)'
+      ],
+      pendingFeatures: [
+        'Notificaciones automáticas (la campana es estática)',
+        'Recordatorios antes de la reserva',
+        'Reservas recurrentes y reservas múltiples por día',
+        'Horario extendido (actualmente solo hasta las 16:00)',
+        'Calendario o agenda mensual de disponibilidad',
+        'Reportes y estadísticas administrativas'
+      ]
+    };
   },
   methods: {
     closeModal() {
