@@ -191,7 +191,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
 const { user, clearUser } = useAuth();
@@ -225,13 +225,6 @@ const notifications = ref([]);
 
 const router = useRouter();
 const route = useRoute();
-
-// Redirigir al login si no hay usuario
-watch(() => user.value, (newUser) => {
-  if (!newUser && route?.path !== '/login') {
-    router.push('/login');
-  }
-}, { immediate: true });
 
 function handleSearch() {
   if (searchQuery.value.trim()) {

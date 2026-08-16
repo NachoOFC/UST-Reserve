@@ -432,10 +432,7 @@ export default {
   },
   mounted() {
     if (!this.user || this.user.anon || this.user.role !== 'admin') {
-      this.feedback = 'Acceso denegado. Solo administradores pueden acceder.';
-      setTimeout(() => {
-        this.$router.push('/');
-      }, 2000);
+      this.$router.push('/');
       return;
     }
 

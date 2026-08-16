@@ -33,21 +33,43 @@
         <span class="text-gray-500 mb-2">o</span>
         <button @click="loginAnon" class="w-full bg-gray-200 text-green-800 font-semibold py-2 rounded hover:bg-green-100 transition">Entrar como invitado</button>
       </div>
+      <div class="mt-6 text-center">
+        <button @click="goBack" class="text-green-700 text-sm hover:text-green-900 underline transition">
+          &larr; Volver
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const error = ref('')
 const router = useRouter()
+const route = useRoute()
 
 const { setUser } = useAuth()
+
+const getSafeRedirect = () => {
+  const r = route.query.redirect
+  if (typeof r === 'string' && r.startsWith('/') && !r.startsWith('//')) {
+    return r
+  }
+  return '/'
+}
+
+const goBack = () => {
+  if (window.history.length > 1) {
+    router.back()
+  } else {
+    router.push('/')
+  }
+}
 
 const login = async () => {
   error.value = ''
@@ -66,7 +88,7 @@ const login = async () => {
         role: data.user.role || 'user',
         anon: false
       })
-      router.push('/')
+      router.push(getSafeRedirect())
     } else {
       error.value = data.error || 'Error al iniciar sesión'
     }
@@ -75,6 +97,8 @@ const login = async () => {
   }
 }
 
+const protectedPaths = ['/reserve', '/mis-reservas', '/perfil', '/configuracion', '/crud']
+
 const loginAnon = () => {
   setUser({
     anon: true,
@@ -82,7 +106,8 @@ const loginAnon = () => {
     email: null,
     role: 'guest'
   })
-  router.push('/')
+  const target = getSafeRedirect()
+  router.push(protectedPaths.includes(target) ? '/' : target)
 }
 </script>
 

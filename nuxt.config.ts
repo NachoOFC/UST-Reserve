@@ -1,7 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   modules: ["@nuxtjs/tailwindcss"],
-  
+
+  // SPA: la sesión vive en localStorage y todas las páginas cargan sus datos en el cliente.
+  // Evita el flash de contenido protegido antes de la redirección a /login.
+  ssr: false,
+
   app: {
     head: {
       title: 'TomasinoSpace',
