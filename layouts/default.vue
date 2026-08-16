@@ -165,7 +165,21 @@
                       Acceso como Estudiante
                     </div>
                     
+                    <!-- Invitado: iniciar sesión -->
                     <button 
+                      v-if="user && user.anon"
+                      @click="goToLogin"
+                      class="w-full px-4 py-2 text-left text-sm text-emerald-700 hover:bg-emerald-50 transition-colors flex items-center space-x-2"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-9 6v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h3a3 3 0 013 3v1"/>
+                      </svg>
+                      <span>Iniciar sesión</span>
+                    </button>
+
+                    <!-- Usuario autenticado: cerrar sesión -->
+                    <button 
+                      v-else
                       @click="logout"
                       class="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center space-x-2"
                     >
@@ -245,6 +259,11 @@ function goToReservations() {
 function goToSettings() {
   showUserMenu.value = false;
   router.push('/configuracion');
+}
+
+function goToLogin() {
+  showUserMenu.value = false;
+  router.push('/login');
 }
 
 function logout() {
