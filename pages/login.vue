@@ -31,12 +31,7 @@
       </form>
       <div class="mt-6 flex flex-col items-center">
         <span class="text-gray-500 mb-2">o</span>
-        <button @click="loginAnon" class="w-full bg-gray-200 text-green-800 font-semibold py-2 rounded hover:bg-green-100 transition">Entrar como invitado</button>
-      </div>
-      <div class="mt-6 text-center">
-        <button @click="goBack" class="text-green-700 text-sm hover:text-green-900 underline transition">
-          &larr; Volver
-        </button>
+        <button @click="loginAnon" class="w-full bg-gray-200 text-green-800 font-semibold py-2 rounded hover:bg-green-100 transition">Seguir como invitado</button>
       </div>
     </div>
   </div>
@@ -61,14 +56,6 @@ const getSafeRedirect = () => {
     return r
   }
   return '/'
-}
-
-const goBack = () => {
-  if (window.history.length > 1) {
-    router.back()
-  } else {
-    router.push('/')
-  }
 }
 
 const login = async () => {
