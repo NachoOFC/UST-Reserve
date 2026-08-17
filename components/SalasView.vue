@@ -6,10 +6,28 @@
       <p class="text-emerald-100 text-lg text-center max-w-2xl">Encuentra el espacio perfecto para tu estudio, reuniones o trabajo colaborativo. Haz clic en una sala para ver su vista 360°.</p>
     </div>
 
+    <!-- Buscador -->
+    <div class="mb-8">
+      <div class="relative max-w-xl mx-auto">
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Buscar por nombre, número o edificio..."
+          class="w-full pl-10 pr-4 py-3 text-sm border border-gray-300 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm"
+        />
+        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+      <p v-if="searchQuery.trim()" class="text-sm text-gray-500 text-center mt-3">
+        {{ filteredSalas.length }} {{ filteredSalas.length === 1 ? 'sala encontrada' : 'salas encontradas' }}
+      </p>
+    </div>
+
     <!-- Grid de salas -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+    <div v-if="filteredSalas.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
       <div
-        v-for="sala in salas"
+        v-for="sala in filteredSalas"
         :key="sala.id"
         class="group bg-white rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col items-center p-6 cursor-pointer relative overflow-hidden"
         @click="openSala(sala)"
@@ -28,9 +46,20 @@
         <div class="flex items-center gap-2 mt-auto">
           <span class="inline-block px-4 py-2 bg-emerald-600 text-white rounded-lg font-semibold shadow hover:bg-emerald-700 transition">Ver en 360°</span>
         </div>
-        <div class="absolute top-0 right-0 m-3">
-          <span class="inline-block bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full shadow">ID: {{ sala.id }}</span>
+        <div class="absolute top-0 right-0 m-3 flex flex-col items-end gap-1">
+          <span class="inline-block bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full shadow">N° {{ sala.number }}</span>
         </div>
+      </div>
+    </div>
+
+    <!-- Sin resultados -->
+    <div v-else-if="!isLoading" class="text-center py-16">
+      <div class="bg-white rounded-2xl shadow-lg p-8 max-w-md mx-auto">
+        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">No se encontraron salas</h3>
+        <p class="text-gray-600">Prueba con otro nombre, número o edificio.</p>
       </div>
     </div>
 
@@ -51,14 +80,48 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import PanoramaViewer from './PanoramaViewer.vue'
+
 const salas = ref([])
+const isLoading = ref(true)
+const searchQuery = ref('')
 const defaultThumbnail = '/santotomas1.jpg'
 const defaultPanorama = '/e271ec15-3740-4a2e-87eb-8fe9f8a3f2cd.png'
+const salaSeleccionada = ref(null)
+
+const route = useRoute()
+const router = useRouter()
 let intervalId = null
 
-const salaSeleccionada = ref(null)
+if (typeof route.query.q === 'string') {
+  searchQuery.value = route.query.q
+}
+
+watch(() => route.query.q, (q) => {
+  searchQuery.value = typeof q === 'string' ? q : ''
+})
+
+watch(searchQuery, (q) => {
+  const trimmed = q.trim()
+  const query = trimmed ? { q: trimmed } : {}
+  if (route.query.q !== query.q) {
+    router.replace({ query })
+  }
+})
+
+const filteredSalas = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase()
+  if (!q) return salas.value
+  return salas.value.filter(sala =>
+    String(sala.name || '').toLowerCase().includes(q) ||
+    String(sala.number ?? '').toLowerCase().includes(q) ||
+    String(sala.id ?? '').includes(q) ||
+    String(sala.location || '').toLowerCase().includes(q) ||
+    String(sala.description || '').toLowerCase().includes(q)
+  )
+})
 
 function openSala(sala) {
   salaSeleccionada.value = sala
@@ -74,6 +137,9 @@ async function fetchSalas() {
       salas.value = await res.json()
     }
   } catch (e) {}
+  finally {
+    isLoading.value = false
+  }
 }
 
 onMounted(() => {
