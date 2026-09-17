@@ -1,5 +1,31 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <!--
+    ============================================================
+    PÁGINA: Reservar Sala de Estudio
+    ------------------------------------------------------------
+    Propósito:
+      Permite a un usuario autenticado (cuenta institucional)
+      reservar una sala de estudio seleccionando sala, fecha,
+      hora y duración. También muestra su historial de reservas.
+
+    Flujo principal:
+      1. Se cargan las salas disponibles (fetchRooms).
+      2. El usuario selecciona una sala y una fecha.
+      3. Se consultan las horas ya reservadas para esa sala/fecha
+         (fetchReservedHours) y se deshabilitan en el <select>.
+      4. El usuario confirma la reserva (submitReservation) y se
+         envía un POST a /api/reserve.
+
+    Estructura del layout:
+      - Hero      : encabezado decorativo.
+      - Grid 3 col:
+          · Columna izquierda (2/3): formulario de reserva +
+            historial de reservas.
+          · Columna derecha (1/3): resumen de la reserva y
+            "Información Útil".
+  ============================================================
+  -->
+<div class="min-h-screen bg-gray-50">
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Hero section para reservas -->
@@ -15,7 +41,14 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Formulario de reserva -->
         <div class="lg:col-span-2">
-          <!-- Alerta para invitados -->
+          <!--
+            ALERTA PARA INVITADOS
+            ----------------------
+            Si el usuario está navegando como invitado (user.anon),
+            se le muestra un aviso indicando que debe iniciar sesión
+            con su cuenta institucional para poder reservar.
+            Los invitados NO pueden hacer reservas.
+          -->
           <div v-if="user && user.anon" class="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-8 rounded-lg">
             <div class="flex items-start">
               <svg class="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,7 +67,19 @@
             </div>
           </div>
 
-          <!-- Formulario solo para usuarios autenticados -->
+          <!--
+            FORMULARIO SOLO PARA USUARIOS AUTENTICADOS
+            -------------------------------------------
+            Cadena v-if / v-else-if / v-else:
+              - v-if="user && user.anon"      => invitado: muestra aviso.
+              - v-else-if="!user || user.anon"=> no hay sesión o invitado:
+                                                 bloque vacío (el aviso
+                                                 amarillo es lo visible).
+              - v-else                        => usuario autenticado:
+                                                 muestra el formulario.
+            El formulario usa @submit.prevent="submitReservation"
+            para evitar el envío tradicional del navegador.
+          -->
           <div v-else-if="!user || user.anon" class="text-center py-12">
             <!-- Será mostrado por la alerta arriba -->
           </div>
@@ -47,6 +92,17 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-3">Seleccionar Sala</label>
                 
+                <!--
+                  SELECCIÓN DE SALA
+                  -----------------
+                  Se muestran 4 estados posibles según el valor de
+                  isLoadingRooms / roomsError / roomsWithAvailability:
+                    1. Cargando  => spinner "Cargando salas disponibles...".
+                    2. Error     => mensaje de error + botón "Reintentar"
+                                    que vuelve a llamar fetchRooms().
+                    3. Con salas => tarjetas clicables (grid 2 columnas).
+                    4. Vacío     => "No hay salas disponibles".
+                -->
                 <!-- Estado de carga -->
                 <div v-if="isLoadingRooms" class="text-center py-8">
                   <div class="inline-flex items-center px-4 py-2 font-semibold leading-6 text-emerald-600">
@@ -74,6 +130,18 @@
                   </div>
                 </div>
 
+                <!--
+                  TARJETA DE CADA SALA
+                  --------------------
+                  - Al hacer clic se selecciona la sala SIEMPRE que no
+                    esté no-disponible (room.available === false) ni
+                    totalmente reservada (room.allReserved).
+                  - La sala seleccionada se resalta en esmeralda.
+                  - Las salas no reservables se atenúan (opacity-50).
+                  - La etiqueta de estado indica:
+                      "No disponible" / "No hay horarios disponibles hoy"
+                      / "Disponible".
+                -->
                 <!-- Lista de salas -->
                 <div v-else-if="roomsWithAvailability.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div 
@@ -117,8 +185,16 @@
                 </div>
           </div>
 
-              <!-- Información personal (solo lectura si está logueado) -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!--
+                INFORMACIÓN PERSONAL
+                ---------------------
+                Campos de nombre y email:
+                  - Si el usuario está logueado: se muestran SOLO LECTURA
+                    (div con datos provenientes de user.name / user.email).
+                  - Si es invitado (no debería llegar aquí): se permite
+                    escribir en inputs con v-model="formData.name/email".
+              -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">Nombre completo</label>
               <div v-if="user && !user.anon" class="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-900 font-medium">
@@ -147,6 +223,18 @@
             </div>
           </div>
 
+              <!--
+                FECHA, HORA Y DURACIÓN
+                ----------------------
+                - Fecha : input tipo date con rango [hoy, mañana]
+                          (:min="today" :max="tomorrow"). Cambiar la
+                          fecha dispara el watcher 'formData.date' que
+                          recarga las horas reservadas.
+                - Hora  : select de horas disponibles a partir de
+                          validHours. Las horas ya reservadas se
+                          deshabilitan y etiquetan "(Reservada)".
+                - Duración: select 1 o 2 horas (formData.duration).
+              -->
               <!-- Fecha y hora -->
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
@@ -190,6 +278,13 @@
                 </div>
           </div>
 
+              <!--
+                BOTONES DE ACCIÓN
+                -----------------
+                - "Cancelar": NuxtLink que vuelve a la página de inicio.
+                - "Confirmar Reserva": botón submit deshabilitado hasta
+                  que exista sala seleccionada, nombre y email.
+              -->
               <!-- Botones de acción -->
               <div class="flex space-x-4 pt-4">
                 <NuxtLink 
@@ -209,7 +304,15 @@
         </form>
       </div>
 
-          <!-- Historial de reservas -->
+          <!--
+            HISTORIAL DE RESERVAS
+            ---------------------
+            Contenedor con las reservas del usuario (userReservations):
+              - Si está vacío: mensaje "No tienes reservas activas".
+              - Si hay reservas: se recorre la lista con v-for.
+            Al confirmar una nueva reserva se hace unshift() a la lista
+            para que la reserva recién creada aparezca al inicio.
+          -->
           <div class="bg-white rounded-2xl shadow-lg p-6">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Mis Reservas</h2>
             
@@ -222,6 +325,16 @@
             </div>
 
             <div v-else class="space-y-4">
+              <!--
+                TARJETA DE UNA RESERVA DEL HISTORIAL
+                --------------------------------------
+                - v-for recorre userReservations.
+                - El estado se muestra con un badge:
+                    'active'          => verde + "Activa".
+                    cualquier otro    => gris + "Completada".
+                - Se muestran fecha (formateada), hora + duración,
+                  ubicación y nombre del usuario reservante.
+              -->
               <div 
                 v-for="reservation in userReservations" 
                 :key="reservation.id"
@@ -267,10 +380,27 @@
           </div>
         </div>
 
-        <!-- Sidebar con información -->
-        <div class="space-y-6">
-          <!-- Resumen de la reserva -->
-          <div v-if="selectedRoom" class="bg-white rounded-2xl shadow-lg p-6">
+        <!--
+        SIDEBAR / COLUMNA DERECHA
+        --------------------------
+        Contiene dos bloques informativos:
+          1. Resumen de la Reserva: se muestra solo cuando hay una sala
+             seleccionada (selectedRoom). Refleja en tiempo real la
+             sala, fecha, hora, duración y capacidad elegidas.
+          2. Información Útil: datos estáticos sobre horarios de uso
+             de las salas y futura navegación GPS.
+      -->
+      <!-- Sidebar con información -->
+      <div class="space-y-6">
+        <!--
+          RESUMEN DE LA RESERVA
+          ---------------------
+          Aparece únicamente cuando el usuario ya seleccionó una sala
+          (v-if="selectedRoom"). Es una vista previa (no confirmación)
+          de los datos elegidos en el formulario.
+        -->
+        <!-- Resumen de la reserva -->
+        <div v-if="selectedRoom" class="bg-white rounded-2xl shadow-lg p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Resumen de Reserva</h3>
             <div class="space-y-4">
               <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
@@ -299,8 +429,15 @@
             </div>
           </div>
 
-          <!-- Información útil -->
-          <div class="bg-white rounded-2xl shadow-lg p-6">
+          <!--
+          INFORMACIÓN ÚTIL
+          ----------------
+          Bloque estático con ayuda para el usuario:
+            - Horarios de uso de las salas (L-V 8:00-16:00).
+            - Ubicación GPS (próximamente).
+        -->
+        <!-- Información útil -->
+        <div class="bg-white rounded-2xl shadow-lg p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Información Útil</h3>
             <div class="space-y-4">
               <div class="flex items-start space-x-3">
@@ -336,9 +473,33 @@
 </template>
 
 <script>
+// ============================================================
+// IMPORTACIONES
+// ------------------------------------------------------------
+// useToast: librería 'vue-toastification' para mostrar
+// notificaciones (éxito/error/aviso) al usuario.
+// ============================================================
 import { useToast } from 'vue-toastification';
 
 export default {
+  // ============================================================
+  // data(): ESTADO REACTIVO DEL COMPONENTE
+  // ------------------------------------------------------------
+  //   validHours              : horas en que se puede reservar
+  //                             (de 08:00 a 15:00 hora de inicio).
+  //   availableRooms          : salas traídas desde /api/study-rooms.
+  //   isLoadingRooms          : flag para mostrar el spinner.
+  //   roomsError              : mensaje de error al cargar salas.
+  //   selectedRoom            : sala elegida por el usuario (obj|null).
+  //   formData                : valores del formulario (nombre, email,
+  //                             fecha, hora y duración).
+  //   userReservations        : reservas previas del usuario.
+  //   reservedHours           : horas ya ocupadas de la sala/fecha
+  //                             seleccionada (se deshabilitan).
+  //   hasReservationForDate   : indica si el usuario ya tiene una
+  //                             reserva para la fecha elegida
+  //                             (regla: 1 reserva por día).
+  // ============================================================
   data() {
     return {
       validHours: [
@@ -361,9 +522,11 @@ export default {
     };
   },
   computed: {
+    // Fecha de hoy en formato YYYY-MM-DD (límite mínimo del input date).
     today() {
       return new Date().toISOString().split('T')[0];
     },
+    // Fecha de mañana en formato YYYY-MM-DD (límite máximo del input date).
     tomorrow() {
       const t = new Date();
       t.setDate(t.getDate() + 1);
@@ -384,6 +547,13 @@ export default {
       return `${this.selectedRoom ? this.selectedRoom.id : 'none'}-${this.formData.date}-${this.reservedHours.join(',')}`;
     },
   },
+  // ============================================================
+  // watch: REACCIONES A CAMBIOS DEL ESTADO
+  // ------------------------------------------------------------
+  // 'formData.date': al cambiar la fecha se vuelven a consultar las
+  //   horas reservadas y se verifica la regla "1 reserva por día".
+  // selectedRoom    : al cambiar la sala se consultan sus horas.
+  // ============================================================
   watch: {
     'formData.date': function() {
       this.fetchReservedHours();
@@ -391,12 +561,26 @@ export default {
     },
     selectedRoom: 'fetchReservedHours'
   },
+  // ============================================================
+  // setup(): SE EJECUTA ANTES DE CREAR EL COMPONENTE
+  // ------------------------------------------------------------
+  // - Instancia el toast (notificaciones) de vue-toastification.
+  // - Obtiene el usuario actual desde useAuth() (componible Nuxt).
+  // Ambos se exponen al resto del componente.
+  // ============================================================
   setup() {
     const toast = useToast();
     const { user } = useAuth();
     return { toast, user };
   },
   methods: {
+    // ==========================================================
+    // fetchRooms(): CARGA LAS SALAS DE ESTUDIO
+    // ----------------------------------------------------------
+    // Hace GET a /api/study-rooms. En éxito guarda las salas en
+    // availableRooms; en fallo guarda un mensaje de error. Usa el
+    // flag isLoadingRooms para controlar el spinner de la UI.
+    // ==========================================================
     async fetchRooms() {
       this.isLoadingRooms = true;
       this.roomsError = '';
@@ -415,6 +599,13 @@ export default {
         this.isLoadingRooms = false;
       }
     },
+    // ==========================================================
+    // fetchReservedHours(): HORAS YA OCUPADAS DE LA SALA+FECHA
+    // ----------------------------------------------------------
+    // GET a /api/reserve?studyRoomId=...&fecha=...
+    // Devuelve {"reservedHours": [...]}. Antes de consultar se
+    // limpia reservedHours. Si falta sala o fecha, no consulta.
+    // ==========================================================
     async fetchReservedHours() {
       this.reservedHours = [];
       if (!this.selectedRoom || !this.formData.date) return;
@@ -428,6 +619,14 @@ export default {
         this.reservedHours = [];
       }
     },
+    // ==========================================================
+    // checkUserReservationForDate(): REGLA "1 RESERVA POR DÍA"
+    // ----------------------------------------------------------
+    // Consulta las reservas activas del usuario en /api/reserve/my.
+    // Si ya tiene una reserva para la fecha seleccionada, activa
+    // hasReservationForDate y muestra un aviso con el toast.
+    // Se usa para bloquear reservas duplicadas el mismo día.
+    // ==========================================================
     async checkUserReservationForDate() {
       this.hasReservationForDate = false;
       if (!this.formData.date) return;
@@ -448,17 +647,43 @@ export default {
           }
         }
       } catch (error) {
+        // Error silencioso: no romper la UI si falla la consulta.
       }
     },
+    // ==========================================================
+    // formatDate(): FORMATEA UNA FECHA A TEXTO LEGIBLE
+    // ----------------------------------------------------------
+    // Convierte "2026-09-16" en algo como "martes, 16 de
+    // septiembre de 2026" usando locale español (es-ES).
+    // ==========================================================
     formatDate(dateString) {
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
       return new Date(dateString).toLocaleDateString('es-ES', options);
     },
+    // ==========================================================
+    // formatHour(): NORMALIZA UN HORA A FORMATO HH:MM
+    // ----------------------------------------------------------
+    // Garantiza que la hora tenga siempre 2 dígitos en horas y
+    // minutos. (Actualmente no se usa en el template, está
+    // disponible para futuros usos.)
+    // ==========================================================
     formatHour(h) {
       if (!h) return '';
       const [hh, mm] = h.split(':');
       return `${hh.padStart(2, '0')}:${mm.padStart(2, '0')}`;
     },
+    // ==========================================================
+    // submitReservation(): ENVÍA LA RESERVA AL SERVIDOR
+    // ----------------------------------------------------------
+    // Validaciones previas:
+    //   1. El usuario debe estar autenticado (no invitado); si no,
+    //      avisa y redirige a /login tras 2 segundos.
+    //   2. No puede existir ya una reserva para esa fecha.
+    //   3. Deben existir sala, nombre y email.
+    // Luego hace POST a /api/reserve con los datos del formulario.
+    // En éxito limpia el formulario, agrega la reserva al historial
+    // y muestra un toast de éxito. En fallo muestra el error.
+    // ==========================================================
     async submitReservation() {
       if (!this.user || this.user.anon) {
         this.toast.error('Debes iniciar sesión para hacer una reserva. Los invitados no pueden reservar.');
@@ -495,6 +720,7 @@ export default {
         });
         const result = await response.json();
         if (result.success) {
+          // Agrega la reserva creada al INICIO del historial local
           this.userReservations.unshift({
             id: Date.now(),
             roomName: this.selectedRoom.name,
@@ -524,11 +750,24 @@ export default {
         this.toast.error('Error de conexión. Intenta nuevamente.');
       }
     },
+    // ==========================================================
+    // isHourReserved(): ¿UNA HORA YA ESTÁ RESERVADA?
+    // ----------------------------------------------------------
+    // Devuelve true si 'hour' está dentro de reservedHours, lo que
+    // la deshabilita en el <select> de horas del formulario.
+    // ==========================================================
     isHourReserved(hour) {
       return this.reservedHours.includes(hour);
     },
     
   },
+  // ============================================================
+  // mounted(): SE EJECUTA AL MONTAR EL COMPONENTE
+  // ------------------------------------------------------------
+  // - Si hay usuario autenticado, precarga su nombre y email en el
+  //   formulario (campos de solo lectura).
+  // - Carga las salas de estudio disponibles (fetchRooms).
+  // ============================================================
   mounted() {
     if (this.user && !this.user.anon) {
       this.formData.name = this.user.name || '';
@@ -541,4 +780,12 @@ export default {
 </script>
 
 <style scoped>
+/* ============================================================
+   ESTILOS ESPECÍFICOS DE LA PÁGINA 'reserve'
+   ------------------------------------------------------------
+   El bloque está vacío a propósito: todo el diseño visual usa
+   clases de Tailwind CSS aplicadas directamente en el template
+   (scoped, por lo que estos estilos solo afectarían a este
+   componente si se agregaran reglas aquí).
+   ============================================================ */
 </style>
