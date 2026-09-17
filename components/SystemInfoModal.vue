@@ -44,7 +44,7 @@
 
           <!-- Funcionalidades Disponibles -->
           <div class="bg-purple-50 rounded-xl p-4">
-            <h3 class="text-lg font-semibold text-purple-800 mb-3">Qué hay disponible</h3>
+            <h3 class="text-lg font-semibold text-purple-800 mb-3">Qué hay disponible Actualmente</h3>
             <div class="space-y-2">
               <div v-for="feature in availableFeatures" :key="feature" class="flex items-center">
                 <svg class="w-5 h-5 text-green-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

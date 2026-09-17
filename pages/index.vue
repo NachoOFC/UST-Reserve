@@ -9,8 +9,7 @@
           <div class="max-w-3xl">
             <h1 class="text-4xl font-bold mb-4">Bienvenido a TomasinoSpace</h1>
             <p class="text-emerald-100 text-lg mb-6">
-              Sistema integral de gestión de salas de estudio con tecnología GPS 360° 
-              para la Universidad Santo Tomás
+              Plataforma interactiva para buscar y reservar salas de estudio en la UST.
             </p>
             <div class="flex flex-wrap gap-4">
               <NuxtLink to="/reserve" class="bg-white text-emerald-600 px-6 py-3 rounded-lg font-medium hover:bg-emerald-50 transition-colors">
